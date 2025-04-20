@@ -6,23 +6,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Footer from "@/Home/Footer";
-import { useAuth } from "./authProvider";
+import { useOwner } from "../Context/OwnerContext"; // Import useOwner
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
 import { ShoppingBag } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react"; // Import eye icons
 
 export default function AuthTabs() {
-  const { signUpWithEmail, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { registerWithEmail, loginWithEmail, registerWithGoogle } = useOwner(); // Use OwnerContext
   const [activeTab, setActiveTab] = useState("register");
+  const [name, setName] = useState(""); // Add state for name
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await signUpWithEmail(email, password);
-      alert("Registration successful! Please check your email to verify your account.");
+      await registerWithEmail(name, email, password); // Send name along with email and password
+      navigate("/dashboard"); // Navigate to dashboard after successful registration
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await loginWithEmail(email, password);
+      navigate("/dashboard"); 
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
@@ -30,19 +42,14 @@ export default function AuthTabs() {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
-      navigate("/dashboard"); // Navigate to the dashboard after success
+      const user = await registerWithGoogle(); // Await the response from registerWithGoogle
+      if (user) {
+        navigate("/dashboard"); // Navigate to dashboard only if the user is created
+      } else {
+        console.log("Google sign-in failed or user already exists.");
+      }
     } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-  };
-
-  const handleFacebookSignIn = async () => {
-    try {
-      await signInWithFacebook();
-      navigate("/dashboard"); // Navigate to the dashboard after success
-    } catch (error) {
-      alert(`Error: ${error.message}`);
+      console.error("Google sign-in error:", error.message);
     }
   };
 
@@ -83,6 +90,17 @@ export default function AuthTabs() {
                 <h2 className="text-xl font-semibold text-center">Create an account</h2>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Your Name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
@@ -93,16 +111,23 @@ export default function AuthTabs() {
                       required
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative">
                     <Label htmlFor="password">Password</Label>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"} // Toggle input type
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                      className="absolute right-3 top-8 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff  size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                   <Button type="submit" className="w-full mt-4">
                     Sign Up
@@ -116,13 +141,6 @@ export default function AuthTabs() {
                     <FcGoogle size={20} />
                     <span>Sign up with Google</span>
                   </button>
-                  <button
-                    onClick={handleFacebookSignIn}
-                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700"
-                  >
-                    <FaFacebook size={20} />
-                    <span>Facebook</span>
-                  </button>
                 </div>
               </CardContent>
             </TabsContent>
@@ -131,14 +149,35 @@ export default function AuthTabs() {
             <TabsContent value="login">
               <CardContent className="space-y-4 py-6">
                 <h2 className="text-xl font-semibold text-center">Welcome back</h2>
-                <form className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
-                    <Input id="login-email" type="email" placeholder="you@example.com" required />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative">
                     <Label htmlFor="login-password">Password</Label>
-                    <Input id="login-password" type="password" placeholder="••••••••" required />
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"} // Toggle input type
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                      className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                   <Button type="submit" className="w-full mt-4">
                     Login
@@ -151,13 +190,6 @@ export default function AuthTabs() {
                   >
                     <FcGoogle size={20} />
                     <span>Sign in with Google</span>
-                  </button>
-                  <button
-                    onClick={handleFacebookSignIn}
-                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700"
-                  >
-                    <FaFacebook size={20} />
-                    <span>Facebook</span>
                   </button>
                 </div>
               </CardContent>

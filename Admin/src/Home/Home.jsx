@@ -1,9 +1,28 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { ShoppingBag } from "lucide-react";
 import Footer from "./Footer";
-
+import  supabase  from "../Auth/supabaseClient"; // Import Supabase client
 const Home = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Check Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Check local token (from MongoDB/Express login)
+      const localToken = localStorage.getItem("token");
+
+      if (session || localToken) {
+        // If logged in via Supabase OR Email login
+        navigate("/dashboard");
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <nav className="bg-white border-b border-gray-200">

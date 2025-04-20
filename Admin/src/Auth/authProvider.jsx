@@ -30,11 +30,20 @@ export const AuthProvider = ({ children }) => {
 
   // Sign in with Google
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
-    if (error) throw error;
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`, // redirect after login
+        },
+      });
+  
+      if (error) throw error;
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
   };
+  
 
  
   const signInWithFacebook = async () => {

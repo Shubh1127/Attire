@@ -1,28 +1,34 @@
-import Home from './Home/Home'
-import SignIn from './Auth/SignIn'
-import './App.css'
-import {Routes,Route} from 'react-router-dom'
-import Dashboard from './Pages/Dashboard'
-import Layout from './Layout/Layout'
-import AddProduct from './Products/AddProduct'
-function App() {
+import Home from './Home/Home';
+import SignIn from './Auth/SignIn';
+import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import Dashboard from './Pages/Dashboard';
+import Layout from './Layout/Layout';
+import AddProduct from './Products/AddProduct';
+import Settings from './Dashboard/Setting';
+import AdminProtected from './AdminProtected/AdminProtected'; // Import AdminProtected
 
+function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/auth' element={<SignIn/>}/>
-        <Route path="/dashboard" element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<SignIn />} />
+        <Route
+          path="/dashboard"
+          element={
+            <AdminProtected>
+              <Layout />
+            </AdminProtected>
+          }
+        >
           <Route index element={<Dashboard />} />
-          {/* <Route path='products' element={<AddProduct />} /> */}
           <Route path="products/add" element={<AddProduct />} />
-          {/* <Route path="orders" element={<Orders />} /> */}
-          {/* <Route path="customers" element={<div>Customers Page</div>} /> */}
-          {/* <Route path="settings" element={<div>Settings Page</div>} /> */}
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
