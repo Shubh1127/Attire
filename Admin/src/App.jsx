@@ -7,6 +7,8 @@ import Layout from './Layout/Layout';
 import AddProduct from './Products/AddProduct';
 import Settings from './Dashboard/Setting';
 import AdminProtected from './AdminProtected/AdminProtected'; // Import AdminProtected
+import Orders from './Pages/Orders';
+import Customers from './Pages/Customers';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="products/add" element={<AddProduct />} />
           <Route path="settings" element={<Settings />} />
+          <Route path='orders' element={<Orders />} />
+          <Route path='customers' element={<Customers />} />
         </Route>
       </Routes>
     </div>

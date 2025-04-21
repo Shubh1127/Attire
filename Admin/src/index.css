@@ -1,0 +1,9 @@
+/* For better mobile scrolling experience */
+@media (max-width: 640px) {
+    .image-upload-container {
+      -webkit-overflow-scrolling: touch;
+    }
+    .image-upload-container::-webkit-scrollbar {
+      height: 4px;
+    }
+  }

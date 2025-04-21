@@ -22,8 +22,8 @@ const Sidebar = () => {
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Products', href: 'products/add', icon: <ShoppingBag size={20} /> },
-    { name: 'Orders', href: '/orders', icon: <Package size={20} /> },
-    { name: 'Customers', href: '/customers', icon: <Users size={20} /> },
+    { name: 'Orders', href: 'orders', icon: <Package size={20} /> },
+    { name: 'Customers', href: 'customers', icon: <Users size={20} /> },
     { name: 'Settings', href: 'settings', icon: <Settings size={20} /> },
   ];
 
