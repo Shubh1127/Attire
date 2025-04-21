@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TrendingUp, Users, ShoppingBag, DollarSign } from 'lucide-react';
-import {Card} from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
+import { useOwner } from "@/Context/OwnerContext";
 
 const StatCard = ({ title, value, change, changeType, icon, iconBg }) => {
   return (
@@ -9,7 +10,7 @@ const StatCard = ({ title, value, change, changeType, icon, iconBg }) => {
         <p className="text-sm font-medium text-gray-600">{title}</p>
         <div className="mt-1 flex items-baseline">
           <p className="text-2xl font-semibold text-gray-900">{value}</p>
-          <span 
+          <span
             className={`ml-2 text-xs font-medium ${
               changeType === 'positive' ? 'text-green-600' : 'text-red-600'
             }`}
@@ -26,6 +27,22 @@ const StatCard = ({ title, value, change, changeType, icon, iconBg }) => {
 };
 
 const SalesOverview = () => {
+  const { fetchTotalProducts } = useOwner();
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  useEffect(() => {
+    const getTotalProducts = async () => {
+      try {
+        const total = await fetchTotalProducts();
+        setTotalProducts(total);
+      } catch (error) {
+        console.error("Error fetching total products:", error);
+      }
+    };
+
+    getTotalProducts();
+  }, [fetchTotalProducts]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
@@ -53,9 +70,9 @@ const SalesOverview = () => {
         iconBg="bg-purple-50"
       />
       <StatCard
-        title="Growth Rate"
-        value="14.2%"
-        change="5.4%"
+        title="Total Products"
+        value={totalProducts} // Display total products
+        change="5.4%" // You can calculate this dynamically if needed
         changeType="positive"
         icon={<TrendingUp size={20} className="text-amber-600" />}
         iconBg="bg-amber-50"
@@ -63,5 +80,4 @@ const SalesOverview = () => {
     </div>
   );
 };
-
 export default SalesOverview;

@@ -12,4 +12,7 @@ router.post(
     productController.addProduct
 );
 
+router.get('/total', authMiddleware, productController.getTotalProducts);
+
+
 module.exports = router;

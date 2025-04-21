@@ -206,6 +206,20 @@ export const OwnerProvider = ({ children }) => {
     }
   };
 
+  const fetchTotalProducts = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/product/total`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return response.data.totalProducts;
+    } catch (error) {
+      console.error("Error fetching total products:", error.response?.data?.message || error.message);
+      throw error;
+    }
+  };
+
   return (
     <OwnerContext.Provider
       value={{
@@ -214,6 +228,7 @@ export const OwnerProvider = ({ children }) => {
         registerWithEmail,
         registerWithGoogle,
         loginWithEmail,
+        fetchTotalProducts,
         updateProfilePicture,
         updatePassword,
         fetchOwnerData,

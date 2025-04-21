@@ -147,54 +147,59 @@ const AddProduct = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Image
-              </label>
-              <div className="flex items-center space-x-6">
-                <div className="flex items-center space-x-6">
-                  {imagePreviews.map((preview, index) => (
-                    <div
-                      key={index}
-                      className="relative w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg"
-                    >
-                      <img
-                        src={preview}
-                        alt="Product preview"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-200"
-                      >
-                        <X size={16} className="text-gray-500" />
-                      </button>
-                    </div>
-                  ))}
-                  {selectedImages.length < 5 && (
-                    <div className="relative w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer">
-                      <Upload size={24} className="text-gray-500" />
-                      <input
-                        type="file"
-                        multiple
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        onChange={handleImageUpload}
-                        accept="image/*"
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500">
-                    Click the icon to upload high-quality images of your
-                    product. Recommended size: 1000x1000px. Max size: 5MB.
-                    Supported formats: JPG, PNG.
-                  </p>
-                </div>
-              </div>
-            </div>
+          <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Product Image
+  </label>
+  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+    {/* Image Preview Container - Scrollable on mobile */}
+    <div className="flex gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap sm:overflow-visible">
+      {imagePreviews.map((preview, index) => (
+        <div key={index} className="flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg">
+          <img
+            src={preview}
+            alt="Product preview"
+            className="w-full h-full object-cover rounded-lg"
+          />
+          <button
+            type="button"
+            onClick={() => removeImage(index)}
+            className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-200"
+          >
+            <X size={16} className="text-gray-500" />
+          </button>
+        </div>
+      ))}
+      
+      {/* Upload Button - Only shows if under limit */}
+      {selectedImages.length < 5 && (
+        <div className="flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer">
+          <Upload size={20} className="text-gray-500" />
+          <input
+            type="file"
+            multiple
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={handleImageUpload}
+            accept="image/*"
+          />
+        </div>
+      )}
+    </div>
 
+    {/* Help Text - Moves below on mobile */}
+    <div className="sm:flex-1">
+      <p className="text-sm text-gray-500">
+        Click the icon to upload high-quality images of your product.
+        Recommended size: 1000x1000px. Max size: 5MB. Supported formats: JPG,
+        PNG.
+      </p>
+      {/* Photo counter */}
+      <p className="text-sm text-gray-500 mt-2">
+        {selectedImages.length}/5 photos uploaded
+      </p>
+    </div>
+  </div>
+</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label

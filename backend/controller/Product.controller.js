@@ -46,3 +46,13 @@ module.exports.addProduct = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+module.exports.getTotalProducts = async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments(); // Count all products in the database
+    res.status(200).json({ totalProducts });
+  } catch (error) {
+    console.error("Error fetching total products:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
