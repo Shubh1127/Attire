@@ -61,42 +61,41 @@ export const OwnerProvider = ({ children }) => {
       throw error;
     }
   };
-
-  // Register owner with Google (Supabase + MongoDB)
-  const registerWithGoogle = async () => {
-    try {
-      // Initiate Google OAuth sign-in
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-      });
-  
-      if (error) throw error;
-  
-      // Wait for the Supabase session to be established
+  useEffect(() => {
+    const getUser = async () => {
       const session = await supabase.auth.getSession();
       const user = session.data.session?.user;
   
       if (user) {
-        // Send a request to the backend to register the user
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/owner/register`, {
-          name: user.user_metadata.full_name, // Full name from Google
-          email: user.email, // Email from Google
-          provider: "google", // Indicate the provider is Google
-        });
+        try {
+          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/owner/register`, {
+            name: user.user_metadata.full_name,
+            email: user.email,
+            provider: "google",
+          });
   
-        // Store the token and user details in localStorage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
-        setOwner(response.data.owner); // Update the owner state with the backend response
-        return response.data.owner;
-      } else {
-        throw new Error("Google sign-in failed or user session not established.");
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("tokenTimestamp", new Date().getTime().toString());
+          setOwner(response.data.user); // Or .owner depending on your response
+        } catch (err) {
+          console.error("Backend registration failed:", err.response?.data?.message || err.message);
+        }
       }
+    };
+  
+    getUser();
+  }, []);
+  const registerWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+      if (error) throw error;
     } catch (error) {
-      console.error("Error registering with Google:", error.response?.data?.message || error.message);
-      throw error;
+      console.error("Google sign-in error:", error.message);
     }
   };
+  
 
   const loginWithEmail = async (email, password) => {
     try {
@@ -190,15 +189,8 @@ export const OwnerProvider = ({ children }) => {
     }
   };
 
-  const addProduct = async (productData, photos) => {
+  const addProduct = async (formData) => {
     try {
-      const formData = new FormData();
-      console.log("Product Data:", productData);
-      console.log("Photos:", photos);
-  
-      photos.forEach((photo) => formData.append("photo", photo));
-      Object.keys(productData).forEach((key) => formData.append(key, productData[key]));
-  
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/product/add`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

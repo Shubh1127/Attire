@@ -26,7 +26,7 @@ const ProductSchema = new mongoose.Schema({
     mainCategory: {
         type: String,
         required: true,
-        enum: ['Men', 'Women', 'Kids']
+        enum: ['men', 'women', 'kids'], // Changed to lowercase to match frontend
     },
     category: {
         type: String,
@@ -34,10 +34,12 @@ const ProductSchema = new mongoose.Schema({
     },
     sizes: {
         type: [String],
-        enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        default: [],
+        enum: ['xs', 's', 'm', 'l', 'xl', 'xxl']
     },
     colors: {
-        type: [String]
+        type: [String],
+        default: []
     },
     status: {
         type: String,

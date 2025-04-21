@@ -3,10 +3,12 @@ const cloudinary = require('../Config/CloudnaryConfig');
 
 module.exports.addProduct = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
-    console.log("Uploaded Files:", req.files);
-
     const { name, price, description, mainCategory, category, sizes, colors, status, quantity } = req.body;
+
+    // Validate mainCategory is one of the allowed values
+    if (!['men', 'women', 'kids'].includes(mainCategory)) {
+      return res.status(400).json({ message: "Invalid main category" });
+    }
 
     // Upload photos to Cloudinary
     const photoUrls = [];
