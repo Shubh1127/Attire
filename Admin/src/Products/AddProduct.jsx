@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X ,Loader2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useOwner } from "@/Context/OwnerContext";
@@ -37,6 +37,7 @@ const AddProduct = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -59,6 +60,7 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const productData = {
       ...formData,
@@ -78,7 +80,7 @@ const AddProduct = () => {
       formDataObj.append("photo", image);
     });
 
-    console.log("Form Data:", Object.fromEntries(formDataObj.entries())); // For debugging
+    // console.log("Form Data:", Object.fromEntries(formDataObj.entries())); // For debugging
 
     try {
       await addProduct(formDataObj);
@@ -101,6 +103,8 @@ const AddProduct = () => {
     } catch (error) {
       alert("Failed to add product.");
       console.error("Error:", error);
+    }finally {
+      setIsLoading(false); // Set loading to false when done
     }
   };
 
@@ -442,8 +446,16 @@ const AddProduct = () => {
         <Button
           type="submit"
           className="bg-gray-900 text-white hover:bg-gray-800"
+          disabled={isLoading} // Disable button while loading
         >
-          Save Product
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Product"
+          )}
         </Button>
       </div>
     </form>

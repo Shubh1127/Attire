@@ -6,9 +6,10 @@ import Dashboard from './Pages/Dashboard';
 import Layout from './Layout/Layout';
 import AddProduct from './Products/AddProduct';
 import Settings from './Dashboard/Setting';
-import AdminProtected from './AdminProtected/AdminProtected'; // Import AdminProtected
+import AdminProtected from './AdminProtected/AdminProtected';
 import Orders from './Pages/Orders';
 import Customers from './Pages/Customers';
+import Inventory from './Pages/Inventory';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
           <Route path='orders' element={<Orders />} />
           <Route path='customers' element={<Customers />} />
+          <Route path='inventory' element={<Inventory />} />
         </Route>
       </Routes>
     </div>
