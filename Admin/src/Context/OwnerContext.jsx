@@ -85,6 +85,7 @@ export const OwnerProvider = ({ children }) => {
   
     getUser();
   }, []);
+  
   const registerWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({

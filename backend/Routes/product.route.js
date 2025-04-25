@@ -12,7 +12,15 @@ router.post(
     productController.addProduct
 );
 
-router.get('/total', authMiddleware, productController.getTotalProducts);
+router.get('/all', authMiddleware, productController.getOwnerProducts);
+// Edit Product Route
+router.put('/edit/:productId', authMiddleware, productController.editProduct);
 
+// Delete Product Route
+router.delete('/delete/:productId', authMiddleware, productController.deleteProduct);
+
+router.get('/getProducts', productController.getAllProducts);
+
+router.get('/getProduct/:productId',productController.getProductById)
 
 module.exports = router;
