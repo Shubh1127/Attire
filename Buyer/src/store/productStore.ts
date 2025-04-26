@@ -4,6 +4,9 @@ import { Product, Category } from '../types';
 // Mock product data
 import { products } from '../data/products';
 
+
+
+
 interface ProductFilters {
   category?: Category;
   search?: string;

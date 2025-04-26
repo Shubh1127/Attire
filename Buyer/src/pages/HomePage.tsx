@@ -4,15 +4,17 @@ import { useProductStore } from '../store/productStore';
 import ProductGrid from '../components/product/ProductGrid';
 import Button from '../components/ui/Button';
 import { ShoppingBag, TrendingUp, Star } from 'lucide-react';
+import { useTheme } from '../Context/ThemeContext';
 
 const HomePage: React.FC = () => {
   const { getFeaturedProducts, getNewArrivals } = useProductStore();
+  const { theme } = useTheme();
   
   const featuredProducts = getFeaturedProducts();
   const newArrivals = getNewArrivals();
   
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Hero Section */}
       <section className="relative h-screen bg-gray-900 flex items-center">
         <div 
@@ -51,9 +53,11 @@ const HomePage: React.FC = () => {
       </section>
       
       {/* Categories Section */}
-      <section className="py-16 bg-gray-50">
+      <section className={`py-16 ${theme === 'dark' ? 'bg-navy-900' : 'bg-gray-50'}`}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
+          <h2 className={`text-3xl font-bold text-center mb-12 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            Shop by Category
+          </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Men's Category */}
@@ -148,36 +152,44 @@ const HomePage: React.FC = () => {
       </section>
       
       {/* Featured Products */}
-      <section className="py-16">
+      <section className={`py-16 ${theme === 'dark' ? 'bg-navy-800' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
               <Star className="h-6 w-6 text-amber-500 mr-2" />
-              <h2 className="text-3xl font-bold">Featured Products</h2>
+              <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Featured Products
+              </h2>
             </div>
             <Link 
               to="/featured" 
-              className="text-navy-600 hover:text-navy-800 font-medium"
+              className={`font-medium ${
+                theme === 'dark' ? 'text-amber-400 hover:text-amber-300' : 'text-navy-600 hover:text-navy-800'
+              }`}
             >
               View All
             </Link>
           </div>
           
-          <ProductGrid products={featuredProducts.slice(0, 8)} />
+          <ProductGrid  />
         </div>
       </section>
       
       {/* New Arrivals */}
-      <section className="py-16 bg-gray-50">
+      <section className={`py-16 ${theme === 'dark' ? 'bg-navy-900' : 'bg-gray-50'}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
               <TrendingUp className="h-6 w-6 text-amber-500 mr-2" />
-              <h2 className="text-3xl font-bold">New Arrivals</h2>
+              <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                New Arrivals
+              </h2>
             </div>
             <Link 
               to="/new-arrivals" 
-              className="text-navy-600 hover:text-navy-800 font-medium"
+              className={`font-medium ${
+                theme === 'dark' ? 'text-amber-400 hover:text-amber-300' : 'text-navy-600 hover:text-navy-800'
+              }`}
             >
               View All
             </Link>
@@ -188,7 +200,7 @@ const HomePage: React.FC = () => {
       </section>
       
       {/* Call to Action */}
-      <section className="py-24 bg-navy-800 text-white">
+      <section className={`py-24 ${theme === 'dark' ? 'bg-navy-950' : 'bg-navy-800'} text-white`}>
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Join Our Fashion Community</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
@@ -201,9 +213,13 @@ const HomePage: React.FC = () => {
               <input
                 type="email"
                 placeholder="Your email address"
-                className="px-4 py-3 w-full rounded-l-md focus:outline-none text-gray-900"
+                className={`px-4 py-3 w-full rounded-l-md focus:outline-none ${
+                  theme === 'dark' ? 'bg-navy-800 text-white placeholder-gray-400' : 'text-gray-900'
+                }`}
               />
-              <button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-r-md font-medium transition-colors">
+              <button className={`px-6 py-3 rounded-r-md font-medium transition-colors ${
+                theme === 'dark' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600'
+              }`}>
                 Subscribe
               </button>
             </div>
@@ -212,55 +228,79 @@ const HomePage: React.FC = () => {
       </section>
       
       {/* Features */}
-      <section className="py-16">
+      <section className={`py-16 ${theme === 'dark' ? 'bg-navy-800' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Free Shipping */}
             <div className="text-center p-6">
-              <div className="bg-gray-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <ShoppingBag className="h-8 w-8 text-navy-800" />
+              <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${
+                theme === 'dark' ? 'bg-navy-700' : 'bg-gray-100'
+              }`}>
+                <ShoppingBag className={`h-8 w-8 ${
+                  theme === 'dark' ? 'text-amber-400' : 'text-navy-800'
+                }`} />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Free Shipping</h3>
-              <p className="text-gray-600">
+              <h3 className={`text-lg font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>Free Shipping</h3>
+              <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
                 On all orders above ₹999
               </p>
             </div>
             
             {/* Easy Returns */}
             <div className="text-center p-6">
-              <div className="bg-gray-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-navy-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${
+                theme === 'dark' ? 'bg-navy-700' : 'bg-gray-100'
+              }`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${
+                  theme === 'dark' ? 'text-amber-400' : 'text-navy-800'
+                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Easy Returns</h3>
-              <p className="text-gray-600">
+              <h3 className={`text-lg font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>Easy Returns</h3>
+              <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
                 30-day return policy
               </p>
             </div>
             
             {/* Secure Payment */}
             <div className="text-center p-6">
-              <div className="bg-gray-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-navy-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${
+                theme === 'dark' ? 'bg-navy-700' : 'bg-gray-100'
+              }`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${
+                  theme === 'dark' ? 'text-amber-400' : 'text-navy-800'
+                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Secure Payment</h3>
-              <p className="text-gray-600">
+              <h3 className={`text-lg font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>Secure Payment</h3>
+              <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
                 100% secure payments
               </p>
             </div>
             
             {/* 24/7 Support */}
             <div className="text-center p-6">
-              <div className="bg-gray-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-navy-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${
+                theme === 'dark' ? 'bg-navy-700' : 'bg-gray-100'
+              }`}>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${
+                  theme === 'dark' ? 'text-amber-400' : 'text-navy-800'
+                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">24/7 Support</h3>
-              <p className="text-gray-600">
+              <h3 className={`text-lg font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>24/7 Support</h3>
+              <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
                 Dedicated customer support
               </p>
             </div>

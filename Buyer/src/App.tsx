@@ -37,26 +37,26 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 function App() {
   return (
     <Router>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#172554',
-            color: '#fff',
-          },
-          success: {
-            style: {
-              background: '#047857',
-            },
-          },
-          error: {
-            style: {
-              background: '#b91c1c',
-            },
-          },
-        }}
-      />
+     <Toaster
+  position="top-right"
+  toastOptions={{
+    duration: 3000,
+    style: {
+      background: 'var(--background)',
+      color: 'var(--foreground)',
+    },
+    success: {
+      style: {
+        background: '#047857',
+      },
+    },
+    error: {
+      style: {
+        background: '#b91c1c',
+      },
+    },
+  }}
+/>
       
       <Header />
       

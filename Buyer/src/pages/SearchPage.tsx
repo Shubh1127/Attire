@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search as SearchIcon } from 'lucide-react';
 import { useProductStore } from '../store/productStore';
+import { useTheme } from '../Context/ThemeContext';
 import ProductGrid from '../components/product/ProductGrid';
 import Input from '../components/ui/Input';
 
@@ -9,6 +10,7 @@ const SearchPage: React.FC = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialQuery = queryParams.get('q') || '';
+  const { theme } = useTheme();
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const { setFilter, clearFilters, getFilteredProducts } = useProductStore();
@@ -34,10 +36,10 @@ const SearchPage: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-24 pb-16 dark:bg-navy-900">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
             Search Products
           </h1>
           
@@ -48,20 +50,20 @@ const SearchPage: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for products..."
               fullWidth
-              className="rounded-full py-3 px-5 text-lg"
+              className="rounded-full py-3 px-5 text-lg dark:bg-navy-800 dark:border-navy-700 dark:text-white"
             />
             <button
               type="submit"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-navy-700 text-white p-2 rounded-full"
+              className="absolute right-8 top-1/2 transform -translate-y-1/2 bg-navy-700 dark:bg-amber-500 text-white p-2 rounded-full"
             >
-              <SearchIcon className="h-5 w-5" />
+              <SearchIcon className="h-5 w-5  " />
             </button>
           </form>
         </div>
         
         {searchQuery ? (
           <>
-            <h2 className="text-lg text-gray-600 mb-6">
+            <h2 className="text-lg text-gray-600 dark:text-gray-300 mb-6">
               {searchResults.length > 0 
                 ? `Found ${searchResults.length} results for "${searchQuery}"` 
                 : `No results found for "${searchQuery}"`}
@@ -73,30 +75,46 @@ const SearchPage: React.FC = () => {
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 dark:text-gray-300 mb-8">
               Enter a search term to find products.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
               <div 
-                className="bg-gray-100 p-4 rounded-lg text-center cursor-pointer hover:bg-navy-50 transition-colors"
+                className={`p-4 rounded-lg text-center cursor-pointer transition-colors ${
+                  theme === 'dark' 
+                    ? 'bg-navy-800 hover:bg-navy-700 text-white' 
+                    : 'bg-gray-100 hover:bg-navy-50 text-gray-900'
+                }`}
                 onClick={() => setSearchQuery('shirts')}
               >
                 <p className="font-medium">Shirts</p>
               </div>
               <div 
-                className="bg-gray-100 p-4 rounded-lg text-center cursor-pointer hover:bg-navy-50 transition-colors"
+                className={`p-4 rounded-lg text-center cursor-pointer transition-colors ${
+                  theme === 'dark' 
+                    ? 'bg-navy-800 hover:bg-navy-700 text-white' 
+                    : 'bg-gray-100 hover:bg-navy-50 text-gray-900'
+                }`}
                 onClick={() => setSearchQuery('dresses')}
               >
                 <p className="font-medium">Dresses</p>
               </div>
               <div 
-                className="bg-gray-100 p-4 rounded-lg text-center cursor-pointer hover:bg-navy-50 transition-colors"
+                className={`p-4 rounded-lg text-center cursor-pointer transition-colors ${
+                  theme === 'dark' 
+                    ? 'bg-navy-800 hover:bg-navy-700 text-white' 
+                    : 'bg-gray-100 hover:bg-navy-50 text-gray-900'
+                }`}
                 onClick={() => setSearchQuery('shoes')}
               >
                 <p className="font-medium">Shoes</p>
               </div>
               <div 
-                className="bg-gray-100 p-4 rounded-lg text-center cursor-pointer hover:bg-navy-50 transition-colors"
+                className={`p-4 rounded-lg text-center cursor-pointer transition-colors ${
+                  theme === 'dark' 
+                    ? 'bg-navy-800 hover:bg-navy-700 text-white' 
+                    : 'bg-gray-100 hover:bg-navy-50 text-gray-900'
+                }`}
                 onClick={() => setSearchQuery('jeans')}
               >
                 <p className="font-medium">Jeans</p>

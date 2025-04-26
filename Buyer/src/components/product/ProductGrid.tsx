@@ -1,35 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useBuyerContext } from '../../Context/BuyerContext';
 import ProductCard from './ProductCard';
-import { Product } from '../../types';
+import { useTheme } from '../../Context/ThemeContext';
 
-interface ProductGridProps {
-  products: Product[];
-  title?: string;
-  className?: string;
-  emptyMessage?: string;
-}
+const ProductGrid: React.FC = () => {
+  const { allProducts, fetchAllProducts } = useBuyerContext();
+  const { theme } = useTheme();
 
-const ProductGrid: React.FC<ProductGridProps> = ({
-  products,
-  title,
-  className = '',
-  emptyMessage = 'No products found',
-}) => {
+  useEffect(() => {
+    console.log('Fetching all products...');
+    fetchAllProducts();
+  }, []);
+
+  console.log('All products:', allProducts);
+
   return (
-    <div className={className}>
-      {title && (
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">{title}</h2>
-      )}
-      
-      {products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {allProducts.length > 0 ? (
+        allProducts.map((product) => (
+          <ProductCard key={product._id} product={product} />
+        ))
       ) : (
-        <div className="py-10 text-center">
-          <p className="text-gray-500">{emptyMessage}</p>
+        <div className="col-span-full py-10 text-center">
+          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>
+            No products found
+          </p>
         </div>
       )}
     </div>

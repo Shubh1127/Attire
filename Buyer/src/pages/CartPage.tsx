@@ -4,9 +4,11 @@ import { ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import CartItem from '../components/cart/CartItem';
 import Button from '../components/ui/Button';
+import { useTheme } from '../Context/ThemeContext';
 import { formatPrice } from '../lib/utils';
 
 const CartPage: React.FC = () => {
+  const {theme} = useTheme();
   const { items, totalPrice, clearCart } = useCartStore();
   
   const shippingCost = totalPrice() > 999 ? 0 : 99;
@@ -16,17 +18,23 @@ const CartPage: React.FC = () => {
   
   if (items.length === 0) {
     return (
-      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+      <div className={`min-h-screen pt-24 pb-16 flex items-center justify-center ${theme === 'dark' ? 'bg-navy-900' : 'bg-gray-50'}`}>
         <div className="text-center p-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
             <ShoppingBag className="h-10 w-10 text-gray-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className={`text-2xl font-bold text-gray-900 mb-4 ${
+                  theme === 'dark' ? 'text-green-400' : 'text-gray-600'
+                }`}>Your cart is empty</h2>
+          <p className={`text-gray-600 mb-6 ${
+                  theme === 'dark' ? 'text-green-400' : 'text-gray-600'
+                }`}>
             Looks like you haven't added any items to your cart yet.
           </p>
           <Link to="/">
-            <Button>
+            <Button className={`bg-navy-700 hover:bg-navy-600 text-white ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-200'
+                }` }>
               Continue Shopping
             </Button>
           </Link>

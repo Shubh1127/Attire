@@ -5,6 +5,7 @@ import { Product } from '../../types';
 import { formatPrice, getDiscountPercentage, truncateText } from '../../lib/utils';
 import Button from '../ui/Button';
 import { useCartStore } from '../../store/cartStore';
+import { useTheme } from '../../Context/ThemeContext';
 
 interface ProductCardProps {
   product: Product;
@@ -12,21 +13,31 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addItem } = useCartStore();
+  const { theme } = useTheme();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product, 1, product.sizes[0], product.colors[0]);
+    
+    // Safely get first size and color with fallbacks
+    const defaultSize = product.sizes?.length ? product.sizes[0] : 'One Size';
+    const defaultColor = product.colors?.length ? product.colors[0] : 'Default';
+    
+    addItem(product, 1, defaultSize, defaultColor);
   };
 
   return (
     <Link 
-      to={`/product/${product.id}`}
-      className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full"
+      to={`/product/${product._id}`}
+      className={`group rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full ${
+        theme === 'dark' ? 'bg-navy-800' : 'bg-white'
+      }`}
     >
       {/* Product Image */}
-      <div className="relative h-64 overflow-hidden">
+      <div className={`relative h-64 overflow-hidden ${
+        theme === 'dark' ? 'bg-navy-700' : 'bg-gray-100'
+      }`}>
         <img 
-          src={product.images[0]} 
+          src={product.photo?.[0] || '/placeholder-product.jpg'}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
@@ -40,7 +51,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         
         {/* New Arrival Badge */}
         {product.isNewArrival && (
-          <div className="absolute top-2 right-2 bg-navy-700 text-white text-xs font-bold px-2 py-1 rounded-full">
+          <div className={`absolute top-2 right-2 text-white text-xs font-bold px-2 py-1 rounded-full ${
+            theme === 'dark' ? 'bg-amber-500' : 'bg-navy-700'
+          }`}>
             NEW
           </div>
         )}
@@ -62,30 +75,50 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Product Info */}
       <div className="p-4 flex-grow flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-gray-800 group-hover:text-navy-800 transition-colors">
+          <h3 className={`font-medium group-hover:text-amber-500 transition-colors ${
+            theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
+          }`}>
             {truncateText(product.name, 30)}
           </h3>
-          <button className="text-gray-400 hover:text-red-500 transition-colors">
+          <button className={`transition-colors ${
+            theme === 'dark' ? 'text-gray-400 hover:text-amber-400' : 'text-gray-400 hover:text-red-500'
+          }`}>
             <Heart className="h-5 w-5" />
           </button>
         </div>
         
-        <div className="text-sm text-gray-500 mb-1">
-          {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+        <div className={`text-sm mb-1 ${
+          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+        }`}>
+          {product.category?.charAt(0).toUpperCase() + product.category?.slice(1)}
         </div>
         
         <div className="mt-auto flex items-center pt-2">
           {product.discountPrice ? (
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-900">{formatPrice(product.discountPrice)}</span>
-              <span className="text-sm text-gray-500 line-through">{formatPrice(product.price)}</span>
+              <span className={`font-semibold ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                {formatPrice(product.discountPrice)}
+              </span>
+              <span className={`text-sm line-through ${
+                theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
+              }`}>
+                {formatPrice(product.price)}
+              </span>
             </div>
           ) : (
-            <span className="font-semibold text-gray-900">{formatPrice(product.price)}</span>
+            <span className={`font-semibold ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
+              {formatPrice(product.price)}
+            </span>
           )}
           
-          <div className="ml-auto flex items-center text-amber-500">
-            <span className="text-sm font-medium mr-1">{product.rating}</span>
+          <div className={`ml-auto flex items-center ${
+            theme === 'dark' ? 'text-amber-400' : 'text-amber-500'
+          }`}>
+            <span className="text-sm font-medium mr-1">{product.rating || '0'}</span>
             <span className="text-xs">★</span>
           </div>
         </div>

@@ -17,7 +17,7 @@ const Sidebar = () => {
   const Owner = storedOwner ? JSON.parse(storedOwner) : null;
   const session = useSession();
   const user = session?.user;
-  console.log(user?.user_metadata?.avatar_url);
+  // console.log(user?.user_metadata?.avatar_url);
   const [collapsed, setCollapsed] = useState(true);
   const location = useLocation();
   const links = [
