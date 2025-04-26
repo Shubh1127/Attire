@@ -100,7 +100,7 @@ const Header = () => {
             </Link>
             
             <Link 
-              to={isAuthenticated ? '/profile' : '/login'} 
+              to={isAuthenticated ? '/profile' : '/signup'} 
               className="text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400"
             >
               <User className="h-5 w-5" />
@@ -174,7 +174,7 @@ const Header = () => {
                   </>
                 ) : (
                   <Link
-                    to="/login"
+                    to="/signup"
                     className="block text-sm font-medium py-2 text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400 pl-4"
                   >
                     Sign In / Register

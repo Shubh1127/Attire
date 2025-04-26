@@ -18,6 +18,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import SearchPage from './pages/SearchPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import SignIn from './Auth/SignIn'; 
 
 // Route Guard for Protected Routes
 interface ProtectedRouteProps {
@@ -68,8 +69,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/signup" element={<SignIn />} />
           
           {/* Protected Routes */}
           <Route path="/checkout" element={

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import axios from "axios";
+import supabase from "../Auth/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const BuyerContext = createContext();
 
@@ -25,6 +27,17 @@ export const BuyerProvider = ({ children }) => {
       throw error;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const registerWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("Google sign-in error:", error.message);
     }
   };
 
