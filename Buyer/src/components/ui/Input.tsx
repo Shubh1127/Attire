@@ -5,10 +5,11 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   label?: string;
   error?: string;
   fullWidth?: boolean;
+  inputClassName?: string;   // <-- ADD THIS LINE
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, fullWidth = false, ...props }, ref) => {
+  ({ className, inputClassName, label, error, fullWidth = false, ...props }, ref) => {
     return (
       <div className={cn(fullWidth ? 'w-full' : '', className)}>
         {label && (
@@ -27,6 +28,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               : "border-gray-300 focus:border-navy-500",
             fullWidth ? 'w-full' : '',
             props.disabled ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : '',
+            inputClassName,   // <-- APPLY CUSTOM CLASS HERE
           )}
           ref={ref}
           {...props}
@@ -38,6 +40,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     );
   }
 );
+
 
 Input.displayName = 'Input';
 
