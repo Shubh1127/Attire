@@ -1,8 +1,7 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useAuthStore } from './store/authStore';
-
+import supabase from './Auth/SupabaseClient';
 // Layout Components
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -18,49 +17,72 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import SearchPage from './pages/SearchPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
-import SignIn from './Auth/SignIn'; 
+import SignIn from './Auth/SignIn';
 
 // Route Guard for Protected Routes
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // null means "loading"
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuthStore();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check both localStorage token and Supabase session
+        const token = localStorage.getItem('token');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
+        // Authenticated if either exists
+        setIsAuthenticated(!!(token || session?.user));
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Show loading state while checking
+  if (isAuthenticated === null) {
+    return <div>Loading authentication status...</div>;
   }
-  
+
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/signup" replace />;
+  }
+
+  // Render children if authenticated
   return <>{children}</>;
 };
 
 function App() {
   return (
-    <Router>
-     <Toaster
-  position="top-right"
-  toastOptions={{
-    duration: 3000,
-    style: {
-      background: 'var(--background)',
-      color: 'var(--foreground)',
-    },
-    success: {
-      style: {
-        background: '#047857',
-      },
-    },
-    error: {
-      style: {
-        background: '#b91c1c',
-      },
-    },
-  }}
-/>
-      
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'var(--background)',
+            color: 'var(--foreground)',
+          },
+          success: {
+            style: {
+              background: '#047857',
+            },
+          },
+          error: {
+            style: {
+              background: '#b91c1c',
+            },
+          },
+        }}
+      />
+
       <Header />
-      
+
       <main>
         <Routes>
           {/* Public Routes */}
@@ -70,31 +92,40 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/signup" element={<SignIn />} />
-          
+
           {/* Protected Routes */}
-          <Route path="/checkout" element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/order-confirmation" element={
-            <ProtectedRoute>
-              <OrderConfirmationPage />
-            </ProtectedRoute>
-          } />
-          
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/order-confirmation"
+            element={
+              <ProtectedRoute>
+                <OrderConfirmationPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Fallback Route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      
+
       <Footer />
-    </Router>
+    </>
   );
 }
 

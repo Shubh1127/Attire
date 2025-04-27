@@ -1,3 +1,7 @@
+const BuyerModel = require('../Model/BuyerModel');
+const jwt = require('jsonwebtoken');
+const ProductModel = require('../Model/ProductModel');
+const cartmodel=require('../Model/CartModel');
 module.exports.addToCart = async (req, res) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {

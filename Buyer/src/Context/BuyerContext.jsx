@@ -1,35 +1,71 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState,useEffect } from "react";
 import axios from "axios";
-import supabase from "../Auth/supabaseClient";
+import supabase from "../Auth/SupabaseClient";
 import { useNavigate } from "react-router-dom";
 
 const BuyerContext = createContext();
-
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 export const BuyerProvider = ({ children }) => {
+  
+  const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const [buyer, setBuyer] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
+  const isTokenExpired = () => {
+    const tokenTimestamp = localStorage.getItem("tokenTimestamp");
+    if (!tokenTimestamp) return true;
 
-  // Register Buyer
-  const registerBuyer = async (formData) => {
+    const now = new Date().getTime();
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    return now - parseInt(tokenTimestamp, 10) > sevenDaysInMs;
+  };
+
+  // Check for an authenticated buyer on component mount
+  useEffect(() => {
+    const getSession = async () => {
+      if (isTokenExpired()) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("tokenTimestamp");
+        localStorage.removeItem("buyer");
+        setBuyer(null);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error fetching session:", error.message);
+      } else {
+        setBuyer(data.session?.user || null);
+      }
+      setLoading(false);
+    };
+    getSession();
+  }, []);
+
+  // Register buyer with email and password (MongoDB)
+  const registerWithEmail = async (name, email, password, phoneNumber) => {
     try {
-      setLoading(true);
-      const response = await axios.post(`${API_URL}/buyer/register`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/buyer/register`, {
+        name,
+        email,
+        password,
+        phoneNumber,
+        provider: "local",
       });
+
       setBuyer(response.data.buyer);
       localStorage.setItem("token", response.data.token);
-      return response.data;
+      localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
+      return response.data.buyer;
     } catch (error) {
       console.error("Error registering buyer:", error.response?.data?.message || error.message);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
+  // Register buyer with Google
   const registerWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -41,61 +77,114 @@ export const BuyerProvider = ({ children }) => {
     }
   };
 
-  // Login Buyer
-  const loginBuyer = async (credentials) => {
+  // Automatically register or log in the buyer after Google sign-in
+  useEffect(() => {
+    const getUser = async () => {
+      const session = await supabase.auth.getSession();
+      const user = session.data.session?.user;
+
+      if (user) {
+        console.log('trying to register with google')
+        try {
+          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/buyer/register`, {
+            name: user.user_metadata.full_name,
+            email: user.email,
+            provider: "google",
+          });
+
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("tokenTimestamp", new Date().getTime().toString());
+          setBuyer(response.data.buyer);
+        } catch (err) {
+          console.error("Backend registration failed:", err.response?.data?.message || err.message);
+        }
+      }
+    };
+
+    getUser();
+  }, []);
+
+  // Login buyer with email and password
+  const loginWithEmail = async (email, password) => {
     try {
-      setLoading(true);
-      const response = await axios.post(`${API_URL}/buyer/login`, credentials);
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/buyer/login`, {
+        email,
+        password,
+      });
       setBuyer(response.data.buyer);
       localStorage.setItem("token", response.data.token);
-      return response.data;
-    } catch (error) {
-      console.error("Error logging in buyer:", error.response?.data?.message || error.message);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Logout Buyer
-  const logoutBuyer = async () => {
-    try {
-      setLoading(true);
-      await axios.get(`${API_URL}/buyer/logout`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      setBuyer(null);
-      localStorage.removeItem("token");
-    } catch (error) {
-      console.error("Error logging out buyer:", error.response?.data?.message || error.message);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Get Buyer Profile
-  const getProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_URL}/buyer/profile`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      setBuyer(response.data.buyer);
+      localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
+      localStorage.setItem("buyer", JSON.stringify(response.data.buyer));
       return response.data.buyer;
     } catch (error) {
-      console.error("Error fetching profile:", error.response?.data?.message || error.message);
+      console.error("Error logging in:", error.response?.data?.message || error.message);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
+  // Logout buyer
+  const logoutBuyer = async () => {
+    try {
+      navigate("/"); // Redirect to home page after logout
+      await supabase.auth.signOut();
+      localStorage.removeItem("token");
+      localStorage.removeItem("tokenTimestamp");
+      localStorage.removeItem("buyer");
+      try {
+        await axios.get(`${import.meta.env.VITE_BACKEND_URL}/buyer/logout`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+      } catch (err) {
+        console.log(err.message);
+      }
+      setBuyer(null);
+    } catch (error) {
+      console.error("Error signing out:", error.message);
+    }
+  };
+
+  // Fetch buyer profile
+  const getProfile = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/buyer/profile`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log("Buyer profile data:", response.data.buyer);
+      setBuyer(response.data.buyer); // Update the buyer state with the fetched data
+      localStorage.setItem("buyer", JSON.stringify(response.data.buyer)); // Update localStorage
+    } catch (error) {
+      console.error("Error fetching buyer data:", error.response?.data?.message || error.message);
+    }
+  };
+ 
+  const addToCart = async (productId, quantity = 1) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/cart/addToCart`,
+        { productId, quantity },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+      );
+      setBuyer((prevBuyer) => ({
+        ...prevBuyer,
+        cart: response.data.cart, // Update the cart in the buyer state
+      }));
+      alert('Item added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error.response?.data?.message || error.message);
+      alert('Failed to add item to cart.');
+    }
+  };
   // Update Buyer Profile
   const updateProfile = async (formData) => {
     try {
       setLoading(true);
-      const response = await axios.put(`${API_URL}/buyer/updateprofile`, formData, {
+      const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/buyer/updateprofile`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -221,8 +310,10 @@ export const BuyerProvider = ({ children }) => {
       value={{
         buyer,
         loading,
-        registerBuyer,
-        loginBuyer,
+        addToCart,
+        registerWithEmail,
+        loginWithEmail,
+        registerWithGoogle,
         logoutBuyer,
         fetchProductById,
         fetchAllProducts,

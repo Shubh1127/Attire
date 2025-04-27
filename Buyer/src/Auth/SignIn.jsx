@@ -16,21 +16,32 @@ import { ShoppingBag, Eye, EyeOff } from "lucide-react";
 import { useTheme } from "../Context/ThemeContext";
 
 export default function AuthTabs() {
-  const { registerWithEmail, loginWithEmail, registerWithGoogle } =
-    useBuyerContext();
+  const {
+    registerWithEmail,
+    loginWithEmail,
+    registerWithGoogle,
+  } = useBuyerContext();
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("register");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await registerWithEmail(name, email, password);
-      navigate("/dashboard");
+      const resp = await registerWithEmail(name, email, password, phoneNumber);
+      if (resp) {
+        alert("Registration successful! Please login now.");
+        setName("");
+        setEmail("");
+        setPassword("");
+        setPhoneNumber("");
+        setActiveTab("login"); // Switch to login tab
+      }
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
@@ -39,8 +50,11 @@ export default function AuthTabs() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await loginWithEmail(email, password);
-      navigate("/dashboard");
+      
+      const resp = await loginWithEmail(email, password);
+      if (resp) {
+        navigate("/");
+      }
     } catch (error) {
       alert(`Error: ${error.message}`);
     }
@@ -70,7 +84,7 @@ export default function AuthTabs() {
         }`}
       >
         {/* Centered Heading */}
-        <div className="text-center mb-6">
+        <div className="text-center sm:mt-12 mb-2">
           <ShoppingBag
             className={`h-12 w-12 mx-auto ${
               theme === "dark" ? "text-white" : "text-gray-900"
@@ -146,6 +160,27 @@ export default function AuthTabs() {
                       placeholder="Your Name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
+                      required
+                      inputClassName={`w-full  ${
+                        theme === "dark"
+                          ? "bg-navy-700 border-navy-600 text-white"
+                          : ""
+                      }`}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="phoneNumber"
+                      className={theme === "dark" ? "text-gray-300" : ""}
+                    >
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phoneNumber"
+                      type="tel"
+                      placeholder="123-456-7890"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
                       required
                       inputClassName={`w-full  ${
                         theme === "dark"

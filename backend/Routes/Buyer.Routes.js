@@ -4,11 +4,13 @@ const BuyerController=require('../controller/Buyer.controller');
 const authMiddleware=require('../Middlewares/auth.middleware');
 const upload=require('../Middlewares/upload');
 
-router.post('/register',upload.single('profileImage'),BuyerController.register);
+router.post('/register',BuyerController.register);
 router.post('/login',BuyerController.login);
 router.get('/logout',authMiddleware,BuyerController.logout);
 router.get('/profile',authMiddleware,BuyerController.getProfile);
 router.put('/updateprofile',authMiddleware,upload.single('profileImage'),BuyerController.updateProfile);
+
+
 
 //address
 router.post('/addAddress',authMiddleware,BuyerController.addAddress);

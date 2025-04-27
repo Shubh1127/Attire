@@ -4,34 +4,53 @@ const ProductModel=require('../Model/ProductModel')
 const cloudinary = require('../Config/CloudnaryConfig');
 const jwt = require('jsonwebtoken');
 const Fuse=require('fuse.js');
-
 module.exports.register = async (req, res) => {
+  const { name, email, phoneNumber, provider = 'local' } = req.body;
+
   try {
-    const { name, email, password, phoneNumber } = req.body;
-    let profilePhotoUrl = null;
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'Buyers/ProfilePhotos',
-      });
-      profilePhotoUrl = result.secure_url;
+    let buyer = await BuyerModel.findOne({ email });
+
+    if (buyer) {
+      // If user exists and provider is Google, treat it as login
+      if (provider === 'google') {
+        const token = buyer.generateAuthToken();
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        return res.status(200).json({ message: 'User logged in successfully', token, buyer });
+      }
+      // For local provider, block duplicate registration
+      return res.status(400).json({ message: 'User already exists' });
     }
-    const hashedPassword = await BuyerModel.hashPassword(password);
-    const isBuyerExist = await BuyerModel.findOne({ email });
-    if (isBuyerExist) {
-      return res.status(400).json({ message: 'Buyer already exists' });
+
+    // Register new user
+    const newBuyerData = { name, email, phoneNumber, provider };
+
+    if (provider === 'local') {
+      if (!req.body.password) {
+        return res.status(400).json({ message: 'Password is required for local signup' });
+      }
+      newBuyerData.password = await BuyerModel.hashPassword(req.body.password);
     }
-    const buyer = await BuyerModel.create({
-      name,
-      email,
-      password: hashedPassword,
-      phone: phoneNumber,
-      profileImageUrl: profilePhotoUrl,
-     
+
+    const newBuyer = new BuyerModel(newBuyerData);
+    await newBuyer.save();
+
+    const token = newBuyer.generateAuthToken();
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    const token = buyer.generateAuthToken();
-    return res.status(201).json({ message: 'Buyer registered successfully', token: token, buyer: buyer });
+
+    res.status(201).json({ message: 'User registered successfully', token, buyer: newBuyer });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 module.exports.login = async (req, res) => {
@@ -76,7 +95,8 @@ module.exports.getProfile = async (req, res) => {
         _id: buyer._id,
         name: buyer.name,
         email: buyer.email,
-        phone: buyer.phone,
+        phoneNumber: buyer.phoneNumber,
+        provider: buyer.provider,
         addresses: buyer.addresses, 
         profileImageUrl: buyer.profileImageUrl,
       },
@@ -98,7 +118,8 @@ module.exports.updateProfile = async (req, res) => {
       return res.status(401).json({ message: 'Invalid token or user not found' });
     }
 
-    const { name, email, phone, addresses } = req.body; // Expecting an array of addresses
+    const { name, email, phoneNumber, addresses } = req.body; // Expecting an array of addresses
+    console.log(req.body);
     let profileImageUrl = buyer.profileImageUrl;
     if (req.file) {
       if (buyer.profileImageUrl) {
@@ -117,7 +138,7 @@ module.exports.updateProfile = async (req, res) => {
       {
         name,
         email,
-        phone,
+        phoneNumber,
         addresses, // Updating the addresses array
         profileImageUrl,
       },
