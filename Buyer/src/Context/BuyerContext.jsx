@@ -72,7 +72,7 @@ const registerWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: 'https://attire-buyer.onrender.com',  // 👈 dynamic, wherever frontend is hosted
+        redirectTo: window.location.origin,  // 👈 dynamic, wherever frontend is hosted
       },
     });
     if (error) throw error;
