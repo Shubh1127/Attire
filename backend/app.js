@@ -10,7 +10,7 @@ const cors = require('cors');
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174","https://attire-buyer.onrender.com","https://attire-admin1.onrender.com"]; // Admin and User panels
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174","https://attire-buyer.onrender.com","https://attire-admin-2cod.onrender.com/"]; // Admin and User panels
 
 app.use(cors({
   origin: (origin, callback) => {
