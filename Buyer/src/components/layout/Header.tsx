@@ -5,7 +5,7 @@ import { cn } from '../../lib/utils';
 import { useCartStore } from '../../store/cartStore';
 import { useTheme } from '../../Context/ThemeContext';
 import { useBuyerContext } from '../../Context/BuyerContext';
-import supabase from '../../Auth/supabaseClient';
+import supabase from '../../Auth/SupabaseClient';
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme();
