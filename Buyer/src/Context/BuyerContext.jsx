@@ -66,7 +66,7 @@ export const BuyerProvider = ({ children }) => {
   };
 
   // Register buyer with Google
-  c// Register buyer with Google
+  // Register buyer with Google
 const registerWithGoogle = async () => {
   try {
     const { error } = await supabase.auth.signInWithOAuth({
