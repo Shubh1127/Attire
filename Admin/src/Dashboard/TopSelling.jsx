@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {Badge} from "@/components/ui/Badge"; // Adjust the path based on the actual location
+import {Badge} from "@/components/ui/badge"; // Adjust the path based on the actual location
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 const products = [
