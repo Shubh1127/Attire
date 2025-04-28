@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Package, AlertTriangle, TrendingDown, ArrowUpDown, Search, Download, Edit, Trash2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { useOwner } from "@/Context/OwnerContext";
 
 const Inventory = () => {
