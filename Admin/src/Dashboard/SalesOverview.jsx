@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Users, ShoppingBag, DollarSign } from 'lucide-react';
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { useOwner } from "@/Context/OwnerContext";
 
 const StatCard = ({ title, value, change, changeType, icon, iconBg }) => {
