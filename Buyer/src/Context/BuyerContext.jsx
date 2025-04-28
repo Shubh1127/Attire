@@ -174,7 +174,6 @@ export const BuyerProvider = ({ children }) => {
         ...prevBuyer,
         cart: response.data.cart, // Update the cart in the buyer state
       }));
-      alert('Item added to cart successfully!');
     } catch (error) {
       console.error('Error adding to cart:', error.response?.data?.message || error.message);
       alert('Failed to add item to cart.');
@@ -314,13 +313,10 @@ export const BuyerProvider = ({ children }) => {
         ...prevBuyer,
         cart: response.data.cart, // Update the cart in the buyer state
       }));
-      console.log(response.data.cart)
     } catch (error) {
       console.error('Error fetching cart:', error.response?.data?.message || error.message);
-      alert('Failed to fetch cart.');
     }
   };
-
   const updateCartItem = async (productId, quantity) => {
     try {
       const response = await axios.put(
@@ -334,7 +330,6 @@ export const BuyerProvider = ({ children }) => {
         ...prevBuyer,
         cart: response.data.cart, // Update the cart in the buyer state
       }));
-      alert('Cart updated successfully!');
     } catch (error) {
       console.error('Error updating cart:', error.response?.data?.message || error.message);
       alert('Failed to update cart.');
@@ -351,7 +346,6 @@ export const BuyerProvider = ({ children }) => {
         ...prevBuyer,
         cart: response.data.cart, // Update the cart in the buyer state
       }));
-      alert('Item removed from cart successfully!');
     } catch (error) {
       console.error('Error deleting cart item:', error.response?.data?.message || error.message);
       alert('Failed to remove item from cart.');

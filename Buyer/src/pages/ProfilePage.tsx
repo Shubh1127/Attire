@@ -106,7 +106,6 @@ const ProfilePage: React.FC = () => {
       }
 
       resetAddressForm();
-      alert('Address saved successfully!');
     } catch (error) {
       alert('Failed to save address.');
     }
@@ -130,7 +129,6 @@ const ProfilePage: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this address?')) {
       try {
         await deleteAddress(index);
-        alert('Address deleted successfully');
       } catch (error) {
         alert('Failed to delete address');
       }
@@ -174,7 +172,6 @@ const ProfilePage: React.FC = () => {
       await updateProfile(formDataToSend);
       setIsEditing(false);
       await getProfile();
-      alert('Profile updated successfully!');
     } catch (error) {
       alert(error.message || 'Failed to update profile.');
     }

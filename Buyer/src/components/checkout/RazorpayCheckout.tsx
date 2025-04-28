@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '../ui/Button';
-import { useCartStore } from '../../store/cartStore';
+import axios from 'axios';
+import { useBuyerContext } from '../../Context/BuyerContext';
 import { Address } from '../../types';
 
 declare global {
@@ -17,6 +18,7 @@ interface RazorpayCheckoutProps {
   shippingAddress: Address;
   onSuccess: () => void;
   onFailure: (error: Error) => void;
+  theme?: 'light' | 'dark';
 }
 
 const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
@@ -27,9 +29,10 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   shippingAddress,
   onSuccess,
   onFailure,
+  theme = 'light',
 }) => {
-  const { clearCart } = useCartStore();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { buyer } = useBuyerContext();
 
   useEffect(() => {
     // Load Razorpay script
@@ -43,19 +46,40 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
     };
   }, []);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     setIsLoading(true);
     
-    // In a real implementation, you would make an API call to your server to create an order
-    // For this demo, we're simulating the process
-    setTimeout(() => {
+    try {
+      // First create an order on your backend
+      const orderResponse = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/payment/create-order`,
+        {
+          amount: amount * 100, // Convert to paise
+          currency: 'INR',
+          receipt: `order_${Date.now()}`,
+          notes: {
+            buyerId: buyer?._id,
+            shippingAddress: JSON.stringify(shippingAddress),
+            cartItems: JSON.stringify(buyer?.cart),
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      const orderId = orderResponse.data.orderId;
+
       const options = {
-        key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay Key ID
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: amount * 100, // Amount in paisa
         currency: 'INR',
-        name: 'Attire Clothing',
-        description: 'Purchase from Attire',
-        image: 'https://your-logo-url.png', // Replace with your logo
+        name: 'Your Store Name',
+        description: 'Purchase from Your Store',
+        image: '/logo.png', // Your store logo
+        order_id: orderId,
         prefill: {
           name: customerName,
           email: customerEmail,
@@ -63,15 +87,33 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
         },
         notes: {
           address: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}`,
+          buyerId: buyer?._id,
         },
         theme: {
-          color: '#172554',
+          color: theme === 'dark' ? '#1e3a8a' : '#172554', // Navy color that matches your theme
         },
-        handler: function (response: any) {
-          // Handle successful payment
-          console.log('Payment successful:', response);
-          clearCart();
-          onSuccess();
+        handler: async function (response: any) {
+          try {
+            // Verify payment on your backend
+            await axios.post(
+              `${import.meta.env.VITE_BACKEND_URL}/payment/verify`,
+              {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+            
+            onSuccess();
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            onFailure(new Error('Payment verification failed'));
+          }
         },
         modal: {
           ondismiss: function () {
@@ -80,15 +122,13 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
         },
       };
 
-      try {
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
-      } catch (error) {
-        console.error('Razorpay error:', error);
-        onFailure(error instanceof Error ? error : new Error('Payment failed'));
-        setIsLoading(false);
-      }
-    }, 1000);
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      onFailure(error instanceof Error ? error : new Error('Payment failed'));
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -97,9 +137,11 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
       size="lg"
       onClick={handlePayment}
       isLoading={isLoading}
-      className="mt-4"
+      className={`mt-4 ${
+        theme === 'dark' ? 'bg-green-600 hover:bg-green-700' : 'bg-navy-700 hover:bg-navy-800'
+      } text-white`}
     >
-      Pay Now
+      {isLoading ? 'Processing...' : 'Pay Now'}
     </Button>
   );
 };

@@ -29,7 +29,7 @@ interface CartItemProps {
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
-  const { updateCartItem, deleteCartItem } = useBuyerContext();
+  const { updateCartItem, deleteCartItem,fetchCart } = useBuyerContext();
   const { theme } = useTheme();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [isRemoving, setIsRemoving] = React.useState(false);
@@ -39,19 +39,19 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
     setIsUpdating(true);
     try {
       await updateCartItem(item.productId, newQuantity);
-      onUpdate(); // Trigger parent to refresh data
+      await fetchCart(); // Re-fetch the cart to ensure state is updated
     } catch (error) {
       console.error('Failed to update quantity:', error);
     } finally {
       setIsUpdating(false);
     }
   };
-
+  
   const handleRemoveItem = async () => {
     setIsRemoving(true);
     try {
       await deleteCartItem(item.productId);
-      onUpdate(); // Trigger parent to refresh data
+      await fetchCart(); // Re-fetch the cart to ensure state is updated
     } catch (error) {
       console.error('Failed to remove item:', error);
     } finally {
