@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Button from '../ui/Button';
 import axios from 'axios';
 import { useBuyerContext } from '../../Context/BuyerContext';
-import { Address } from '../../types';
 
 declare global {
   interface Window {
@@ -15,7 +14,12 @@ interface RazorpayCheckoutProps {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  shippingAddress: Address;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  }; // Use the structure of the shippingAddress passed from CheckoutPage
   onSuccess: () => void;
   onFailure: (error: Error) => void;
   theme?: 'light' | 'dark';
@@ -48,7 +52,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   const handlePayment = async () => {
     setIsLoading(true);
-    
+
     try {
       // First create an order on your backend
       const orderResponse = await axios.post(
@@ -108,7 +112,7 @@ const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
                 },
               }
             );
-            
+
             onSuccess();
           } catch (error) {
             console.error('Payment verification failed:', error);
