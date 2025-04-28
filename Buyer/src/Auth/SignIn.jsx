@@ -6,8 +6,8 @@ import {
   TabsTrigger,
   TabsContent,
 } from "../components/ui/tabs";
-import Input from "../components/ui/input";
-import Button from "../components/ui/button";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
 import { Card, CardContent } from "../components/ui/card";
 import { Label } from "../components/ui/label";
 import { useBuyerContext } from "../Context/BuyerContext";
