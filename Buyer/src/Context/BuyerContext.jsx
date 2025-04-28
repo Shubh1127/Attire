@@ -66,16 +66,21 @@ export const BuyerProvider = ({ children }) => {
   };
 
   // Register buyer with Google
-  const registerWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-      });
-      if (error) throw error;
-    } catch (error) {
-      console.error("Google sign-in error:", error.message);
-    }
-  };
+  c// Register buyer with Google
+const registerWithGoogle = async () => {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: 'https://attire-buyer.onrender.com',  // 👈 dynamic, wherever frontend is hosted
+      },
+    });
+    if (error) throw error;
+  } catch (error) {
+    console.error("Google sign-in error:", error.message);
+  }
+};
+
 
   // Automatically register or log in the buyer after Google sign-in
   useEffect(() => {
