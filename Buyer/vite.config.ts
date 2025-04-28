@@ -8,6 +8,7 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   build: {
-    outDir: 'build',  // Change output directory to 'build'
+    outDir: 'build',  // Output directory is build
   },
+  base: './',  // <<< Add this line
 });
