@@ -7,7 +7,7 @@ import RazorpayCheckout from '../components/checkout/RazorpayCheckout';
 import Button from '../components/ui/Button';
 import { formatPrice, cn } from '../lib/utils';
 import { useTheme } from '../Context/ThemeContext';
-import supabase from '../Auth/supabaseClient';
+import supabase from '../Auth/SupabaseClient';
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -18,7 +18,7 @@ const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('card');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Calculate order totals
+ 
   const subtotal = buyer?.cart?.reduce((total, item) => total + item.quantity * item.price, 0) || 0;
   const shippingCost = subtotal > 999 ? 0 : 99;
   const tax = subtotal * 0.18; // 18% GST
