@@ -64,7 +64,7 @@ export default function AuthTabs() {
     try {
       const user = await registerWithGoogle();
       if (user) {
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error) {
       console.error("Google sign-in error:", error.message);
