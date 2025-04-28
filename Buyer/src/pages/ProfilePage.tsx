@@ -223,7 +223,7 @@ const ProfilePage: React.FC = () => {
                   <div className="relative">
                     {previewImage ? (
                       <img
-                        src={ previewImage }
+                        src={ previewImage } 
                         className="h-24 w-24 rounded-full object-cover"
                       />
                     ) : buyer?.name ? (

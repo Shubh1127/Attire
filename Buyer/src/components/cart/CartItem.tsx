@@ -1,83 +1,192 @@
 import React from 'react';
-import { Trash2, Plus, Minus } from 'lucide-react';
-import { CartItem as CartItemType } from '../../types';
-import { formatPrice } from '../../lib/utils';
-import { useCartStore } from '../../store/cartStore';
+import { Link } from 'react-router-dom';
+import { useTheme } from '../../Context/ThemeContext';
+import { useBuyerContext } from '../../Context/BuyerContext';
+import { 
+  cn,
+  formatPrice, 
+  getProductPhoto, 
+  truncateText, 
+  formatSize, 
+  formatColor 
+} from '../../lib/utils';
+import { Minus, Plus, Trash2 } from 'lucide-react';
+import Button from '../ui/Button';
 
 interface CartItemProps {
-  item: CartItemType;
+  item: {
+    _id: string;
+    productId: string;
+    name: string;
+    description: string;
+    price: number;
+    photo: string[];
+    size: string;
+    color: string;
+    quantity: number;
+  };
+  onUpdate: () => void; // Add this prop
 }
 
-const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { removeItem, updateQuantity } = useCartStore();
+const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
+  const { updateCartItem, deleteCartItem } = useBuyerContext();
+  const { theme } = useTheme();
+  const [isUpdating, setIsUpdating] = React.useState(false);
+  const [isRemoving, setIsRemoving] = React.useState(false);
 
-  const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= 10) {
-      updateQuantity(item.id, newQuantity);
+  const handleQuantityChange = async (newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setIsUpdating(true);
+    try {
+      await updateCartItem(item.productId, newQuantity);
+      onUpdate(); // Trigger parent to refresh data
+    } catch (error) {
+      console.error('Failed to update quantity:', error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  return (
-    <div className="flex py-6 border-b border-gray-200">
-      {/* Product Image */}
-      <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-        <img
-          src={item.image}
-          alt={item.name}
-          className="h-full w-full object-cover object-center"
-        />
-      </div>
+  const handleRemoveItem = async () => {
+    setIsRemoving(true);
+    try {
+      await deleteCartItem(item.productId);
+      onUpdate(); // Trigger parent to refresh data
+    } catch (error) {
+      console.error('Failed to remove item:', error);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 
-      {/* Product Details */}
-      <div className="ml-4 flex flex-1 flex-col">
-        <div>
-          <div className="flex justify-between text-base font-medium text-gray-900">
-            <h3>{item.name}</h3>
-            <p className="ml-4">
-              {item.discountPrice 
-                ? formatPrice(item.discountPrice * item.quantity)
-                : formatPrice(item.price * item.quantity)}
+  if (isRemoving) {
+    return (
+      <div className={cn(
+        'flex items-center justify-center mb-4 p-4 rounded-lg',
+        theme === 'dark' ? 'bg-navy-800' : 'bg-white',
+        theme === 'dark' ? 'border-navy-700' : 'border-gray-200',
+        'border'
+      )}>
+        <p className={theme === 'dark' ? 'text-green-300' : 'text-gray-600'}>
+          Removing item...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn(
+      'flex items-start justify-between mb-4 p-4 rounded-lg',
+      theme === 'dark' ? 'bg-navy-800' : 'bg-white',
+      theme === 'dark' ? 'border-navy-700' : 'border-gray-200',
+      'border',
+      isUpdating ? 'opacity-70' : ''
+    )}>
+      <Link 
+        to={`/product/${item.productId}`}
+        className="flex items-start flex-1"
+      >
+        <img
+          src={getProductPhoto(item)}
+          alt={item.name}
+          className="h-16 w-16 rounded object-cover"
+        />
+        <div className="ml-4 flex-1">
+          <h3 className={cn(
+            'text-lg font-medium',
+            theme === 'dark' ? 'text-green-400' : 'text-gray-900'
+          )}>
+            {item.name}
+          </h3>
+          <p className={cn(
+            'text-sm',
+            theme === 'dark' ? 'text-green-300' : 'text-gray-600'
+          )}>
+            {truncateText(item.description)}
+          </p>
+          <div className="flex gap-4 mt-1">
+            <p className={cn(
+              'text-sm',
+              theme === 'dark' ? 'text-green-300' : 'text-gray-600'
+            )}>
+              Size: {formatSize(item.size)}
+            </p>
+            <p className={cn(
+              'text-sm',
+              theme === 'dark' ? 'text-green-300' : 'text-gray-600'
+            )}>
+              Color: {formatColor(item.color)}
             </p>
           </div>
-          <p className="mt-1 text-sm text-gray-500">
-            Size: {item.size} | Color: {item.color}
-          </p>
         </div>
-        
-        <div className="flex flex-1 items-end justify-between text-sm">
-          {/* Quantity Selector */}
-          <div className="flex items-center border rounded-md">
-            <button
-              type="button"
-              className="p-2 text-gray-600 hover:text-gray-900"
-              onClick={() => handleQuantityChange(item.quantity - 1)}
-              disabled={item.quantity <= 1}
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="px-2 py-1 text-gray-900 w-8 text-center">
-              {item.quantity}
-            </span>
-            <button
-              type="button"
-              className="p-2 text-gray-600 hover:text-gray-900"
-              onClick={() => handleQuantityChange(item.quantity + 1)}
-              disabled={item.quantity >= 10}
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
+      </Link>
 
-          {/* Remove Button */}
-          <button
-            type="button"
-            className="font-medium text-red-600 hover:text-red-800 flex items-center"
-            onClick={() => removeItem(item.id)}
+      <div className="flex flex-col items-end ml-4">
+        <div className="flex items-center space-x-2 mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              handleQuantityChange(item.quantity - 1);
+            }}
+            disabled={isUpdating || isRemoving}
+            className={cn(
+              'h-8 w-8 p-0',
+              theme === 'dark' ? 'hover:bg-navy-700' : 'hover:bg-gray-100',
+              (isUpdating || isRemoving) ? 'opacity-50 cursor-not-allowed' : ''
+            )}
           >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Remove
-          </button>
+            <Minus className="h-4 w-4" />
+          </Button>
+          <span className={cn(
+            'w-8 text-center',
+            theme === 'dark' ? 'text-green-400' : 'text-gray-900'
+          )}>
+            {item.quantity}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              handleQuantityChange(item.quantity + 1);
+            }}
+            disabled={isUpdating || isRemoving}
+            className={cn(
+              'h-8 w-8 p-0',
+              theme === 'dark' ? 'hover:bg-navy-700' : 'hover:bg-gray-100',
+              (isUpdating || isRemoving) ? 'opacity-50 cursor-not-allowed' : ''
+            )}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
         </div>
+
+        <p className={cn(
+          'text-lg font-medium mb-2',
+          theme === 'dark' ? 'text-green-400' : 'text-gray-900'
+        )}>
+          {formatPrice(item.price * item.quantity)}
+        </p>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            handleRemoveItem();
+          }}
+          disabled={isRemoving || isUpdating}
+          className={cn(
+            'text-red-500 hover:text-red-700 p-0 h-8',
+            theme === 'dark' ? 'hover:bg-navy-700' : 'hover:bg-gray-100',
+            (isUpdating || isRemoving) ? 'opacity-50 cursor-not-allowed' : ''
+          )}
+        >
+          <Trash2 className="h-4 w-4 mr-1" />
+          {isRemoving ? 'Removing...' : 'Remove'}
+        </Button>
       </div>
     </div>
   );

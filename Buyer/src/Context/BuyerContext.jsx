@@ -161,11 +161,11 @@ export const BuyerProvider = ({ children }) => {
     }
   };
  
-  const addToCart = async (productId, quantity = 1) => {
+  const addToCart = async (productId, quantity = 1, size, color) => {
     try {
       const response = await axios.post(
         `${API_URL}/cart/addToCart`,
-        { productId, quantity },
+        { productId, quantity, size, color },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         }
@@ -305,12 +305,67 @@ export const BuyerProvider = ({ children }) => {
     }
 
   }
+  const fetchCart = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/cart/getcart`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setBuyer((prevBuyer) => ({
+        ...prevBuyer,
+        cart: response.data.cart, // Update the cart in the buyer state
+      }));
+      console.log(response.data.cart)
+    } catch (error) {
+      console.error('Error fetching cart:', error.response?.data?.message || error.message);
+      alert('Failed to fetch cart.');
+    }
+  };
+
+  const updateCartItem = async (productId, quantity) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/cart/updatecart`,
+        { productId, quantity },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+      );
+      setBuyer((prevBuyer) => ({
+        ...prevBuyer,
+        cart: response.data.cart, // Update the cart in the buyer state
+      }));
+      alert('Cart updated successfully!');
+    } catch (error) {
+      console.error('Error updating cart:', error.response?.data?.message || error.message);
+      alert('Failed to update cart.');
+    }
+  };
+  
+  const deleteCartItem = async (productId) => {
+    try {
+      const response = await axios.delete(`${API_URL}/cart/deletecart`, {
+        data: { productId },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setBuyer((prevBuyer) => ({
+        ...prevBuyer,
+        cart: response.data.cart, // Update the cart in the buyer state
+      }));
+      alert('Item removed from cart successfully!');
+    } catch (error) {
+      console.error('Error deleting cart item:', error.response?.data?.message || error.message);
+      alert('Failed to remove item from cart.');
+    }
+  };
   return (
     <BuyerContext.Provider
       value={{
         buyer,
         loading,
         addToCart,
+        fetchCart,
+        updateCartItem,
+        deleteCartItem,
         registerWithEmail,
         loginWithEmail,
         registerWithGoogle,

@@ -12,7 +12,7 @@ import { useTheme } from '../Context/ThemeContext';
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { fetchProductById } = useBuyerContext();
+  const { fetchProductById,addToCart } = useBuyerContext();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const { getProductById, getRelatedProducts } = useProductStore();
@@ -81,13 +81,13 @@ const ProductDetailPage: React.FC = () => {
       setError('Please select a size');
       return;
     }
-    
+  
     if (!selectedColor) {
       setError('Please select a color');
       return;
     }
-    
-    addItem(product, quantity, selectedSize, selectedColor);
+  
+    addToCart(product._id, quantity, selectedSize, selectedColor); // Pass size and color
     if (error) setError(null);
   };
   

@@ -5,7 +5,7 @@ import { cn } from '../../lib/utils';
 import { useCartStore } from '../../store/cartStore';
 import { useTheme } from '../../Context/ThemeContext';
 import { useBuyerContext } from '../../Context/BuyerContext';
-import supabase from '../../Auth/SupabaseClient';
+import supabase from '../../Auth/supabaseClient';
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme();
@@ -15,7 +15,6 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems());
   const location = useLocation();
-
   // Check authentication using Supabase and localStorage
   useEffect(() => {
     const checkAuth = async () => {
@@ -111,9 +110,9 @@ const Header = () => {
               className="text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400 relative"
             >
               <ShoppingBag className="h-5 w-5" />
-              {totalItems > 0 && (
+              {buyer?.cart?.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalItems}
+                  {buyer?.cart?.length}
                 </span>
               )}
             </Link>

@@ -46,6 +46,18 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set({ filters: {} });
   },
   
+  fetchProducts: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/product/getProducts`);
+      const data = await response.json();
+      set({ products: data.products, isLoading: false });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      set({ isLoading: false });
+    }
+  },
+
   getFilteredProducts: () => {
     const { products, filters } = get();
     
