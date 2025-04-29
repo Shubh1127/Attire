@@ -16,7 +16,6 @@ const ProductDetailPage: React.FC = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const { getProductById, getRelatedProducts } = useProductStore();
-  const { addItem } = useCartStore();
   const { theme } = useTheme();
   
   const relatedProducts = getRelatedProducts(id!, 4);

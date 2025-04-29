@@ -2,14 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../Context/ThemeContext';
 import { useBuyerContext } from '../../Context/BuyerContext';
-import { 
-  cn,
-  formatPrice, 
-  getProductPhoto, 
-  truncateText, 
-  formatSize, 
-  formatColor 
-} from '../../lib/utils';
+import { cn, formatPrice, getProductPhoto, truncateText, formatSize, formatColor } from '../../lib/utils';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import Button from '../ui/Button';
 
@@ -28,8 +21,36 @@ interface CartItemProps {
   onUpdate: () => void; // Add this prop
 }
 
+const CartItemSkeleton: React.FC = () => {
+  return (
+    <div
+      className={cn(
+        'flex items-start justify-between mb-4 p-4 rounded-lg animate-pulse',
+        'bg-gray-200 dark:bg-navy-800 border border-gray-300 dark:border-navy-700'
+      )}
+    >
+      <div className="flex items-start flex-1">
+        <div className="h-16 w-16 rounded bg-gray-300 dark:bg-navy-700"></div>
+        <div className="ml-4 flex-1">
+          <div className="h-4 w-3/4 bg-gray-300 dark:bg-navy-700 rounded mb-2"></div>
+          <div className="h-3 w-1/2 bg-gray-300 dark:bg-navy-700 rounded mb-2"></div>
+          <div className="flex gap-4 mt-1">
+            <div className="h-3 w-16 bg-gray-300 dark:bg-navy-700 rounded"></div>
+            <div className="h-3 w-16 bg-gray-300 dark:bg-navy-700 rounded"></div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col items-end ml-4">
+        <div className="h-8 w-20 bg-gray-300 dark:bg-navy-700 rounded mb-2"></div>
+        <div className="h-4 w-12 bg-gray-300 dark:bg-navy-700 rounded mb-2"></div>
+        <div className="h-8 w-16 bg-gray-300 dark:bg-navy-700 rounded"></div>
+      </div>
+    </div>
+  );
+};
+
 const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
-  const { updateCartItem, deleteCartItem,fetchCart } = useBuyerContext();
+  const { updateCartItem, deleteCartItem, fetchCart } = useBuyerContext();
   const { theme } = useTheme();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [isRemoving, setIsRemoving] = React.useState(false);
@@ -46,7 +67,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
       setIsUpdating(false);
     }
   };
-  
+
   const handleRemoveItem = async () => {
     setIsRemoving(true);
     try {
@@ -60,61 +81,57 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
   };
 
   if (isRemoving) {
-    return (
-      <div className={cn(
-        'flex items-center justify-center mb-4 p-4 rounded-lg',
-        theme === 'dark' ? 'bg-navy-800' : 'bg-white',
-        theme === 'dark' ? 'border-navy-700' : 'border-gray-200',
-        'border'
-      )}>
-        <p className={theme === 'dark' ? 'text-green-300' : 'text-gray-600'}>
-          Removing item...
-        </p>
-      </div>
-    );
+    return <CartItemSkeleton />; // Show skeleton while removing
   }
 
   return (
-    <div className={cn(
-      'flex items-start justify-between mb-4 p-4 rounded-lg',
-      theme === 'dark' ? 'bg-navy-800' : 'bg-white',
-      theme === 'dark' ? 'border-navy-700' : 'border-gray-200',
-      'border',
-      isUpdating ? 'opacity-70' : ''
-    )}>
-      <Link 
-        to={`/product/${item.productId}`}
-        className="flex items-start flex-1"
-      >
+    <div
+      className={cn(
+        'flex items-start justify-between mb-4 p-4 rounded-lg',
+        theme === 'dark' ? 'bg-navy-800' : 'bg-white',
+        theme === 'dark' ? 'border-navy-700' : 'border-gray-200',
+        'border',
+        isUpdating ? 'opacity-70' : ''
+      )}
+    >
+      <Link to={`/product/${item.productId}`} className="flex items-start flex-1">
         <img
           src={getProductPhoto(item)}
           alt={item.name}
           className="h-16 w-16 rounded object-cover"
         />
         <div className="ml-4 flex-1">
-          <h3 className={cn(
-            'text-lg font-medium',
-            theme === 'dark' ? 'text-green-400' : 'text-gray-900'
-          )}>
+          <h3
+            className={cn(
+              'text-lg font-medium',
+              theme === 'dark' ? 'text-green-400' : 'text-gray-900'
+            )}
+          >
             {item.name}
           </h3>
-          <p className={cn(
-            'text-sm',
-            theme === 'dark' ? 'text-green-300' : 'text-gray-600'
-          )}>
+          <p
+            className={cn(
+              'text-sm',
+              theme === 'dark' ? 'text-green-300' : 'text-gray-600'
+            )}
+          >
             {truncateText(item.description)}
           </p>
           <div className="flex gap-4 mt-1">
-            <p className={cn(
-              'text-sm',
-              theme === 'dark' ? 'text-green-300' : 'text-gray-600'
-            )}>
+            <p
+              className={cn(
+                'text-sm',
+                theme === 'dark' ? 'text-green-300' : 'text-gray-600'
+              )}
+            >
               Size: {formatSize(item.size)}
             </p>
-            <p className={cn(
-              'text-sm',
-              theme === 'dark' ? 'text-green-300' : 'text-gray-600'
-            )}>
+            <p
+              className={cn(
+                'text-sm',
+                theme === 'dark' ? 'text-green-300' : 'text-gray-600'
+              )}
+            >
               Color: {formatColor(item.color)}
             </p>
           </div>
@@ -139,10 +156,12 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
           >
             <Minus className="h-4 w-4" />
           </Button>
-          <span className={cn(
-            'w-8 text-center',
-            theme === 'dark' ? 'text-green-400' : 'text-gray-900'
-          )}>
+          <span
+            className={cn(
+              'w-8 text-center',
+              theme === 'dark' ? 'text-green-400' : 'text-gray-900'
+            )}
+          >
             {item.quantity}
           </span>
           <Button
@@ -163,10 +182,12 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdate }) => {
           </Button>
         </div>
 
-        <p className={cn(
-          'text-lg font-medium mb-2',
-          theme === 'dark' ? 'text-green-400' : 'text-gray-900'
-        )}>
+        <p
+          className={cn(
+            'text-lg font-medium mb-2',
+            theme === 'dark' ? 'text-green-400' : 'text-gray-900'
+          )}
+        >
           {formatPrice(item.price * item.quantity)}
         </p>
 

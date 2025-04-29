@@ -100,14 +100,14 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             <Link
               to="/search"
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400"
+              className="text-gray-700 dark:text-gray-100 hover:text-navy-800 dark:hover:text-amber-400"
             >
               <Search className="h-5 w-5" />
             </Link>
 
             <Link
               to="/cart"
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400 relative"
+              className="text-gray-700 dark:text-gray-100 hover:text-navy-800 dark:hover:text-amber-400 relative"
             >
               <ShoppingBag className="h-5 w-5" />
               {buyer?.cart?.length > 0 && (
@@ -119,7 +119,7 @@ const Header = () => {
 
             <Link
               to={isAuthenticated ? '/profile' : '/signup'}
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400"
+              className="text-gray-700 dark:text-gray-100 hover:text-navy-800 dark:hover:text-amber-400"
             >
               <User className="h-5 w-5" />
             </Link>
@@ -127,7 +127,7 @@ const Header = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="text-gray-700 dark:text-gray-300 hover:text-navy-800 dark:hover:text-amber-400"
+              className="text-gray-700 dark:text-gray-100 hover:text-navy-800 dark:hover:text-amber-400"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark' ? (

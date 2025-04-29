@@ -29,12 +29,40 @@ interface ProductState {
   getNewArrivals: () => Product[];
   getProductById: (id: string) => Product | undefined;
   getRelatedProducts: (id: string, limit?: number) => Product[];
+  searchProducts: (query: string) => Product[];
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({
   products: products,
   filters: {},
   isLoading: false,
+
+  searchProducts: (query) => {
+    const { products } = get();
+    if (!query.trim()) return products;
+  
+    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 0);
+  
+    return products.filter((product) => {
+      // Create searchable fields with word boundaries
+      const searchableFields = [
+        ` ${product.name.toLowerCase()} `,
+        ` ${product.description.toLowerCase()} `,
+        ` ${product.category.toLowerCase()} `,
+        product.tags ? ` ${product.tags.join(' ').toLowerCase()} ` : ' '
+      ].join(' ');
+  
+      return searchTerms.every(term => {
+        // Exact matching for category
+        if (product.category.toLowerCase().split(' ').includes(term)) {
+          return true;
+        }
+        
+        // Whole word matching for other fields
+        return new RegExp(`\\b${term}\\b`).test(searchableFields);
+      });
+    });
+  },
   
   setFilter: (filter) => {
     set((state) => ({
@@ -59,16 +87,19 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   getFilteredProducts: () => {
-    const { products, filters } = get();
+    const { products, filters, searchProducts } = get();
     
-    return products.filter((product) => {
+    let filtered = [...products];
+    
+    // Apply search filter first
+    if (filters.search) {
+      filtered = searchProducts(filters.search);
+    }
+    
+    // Then apply other filters
+    return filtered.filter((product) => {
       // Filter by category
       if (filters.category && product.category !== filters.category) {
-        return false;
-      }
-      
-      // Filter by search term
-      if (filters.search && !product.name.toLowerCase().includes(filters.search.toLowerCase())) {
         return false;
       }
       
