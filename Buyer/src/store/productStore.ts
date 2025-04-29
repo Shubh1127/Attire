@@ -41,26 +41,25 @@ export const useProductStore = create<ProductState>((set, get) => ({
     const { products } = get();
     if (!query.trim()) return products;
   
-    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 0);
+    const searchTerms = query.toLowerCase().split(' ').filter((term) => term.length > 0);
   
     return products.filter((product) => {
       // Create searchable fields with word boundaries
       const searchableFields = [
         ` ${product.name.toLowerCase()} `,
         ` ${product.description.toLowerCase()} `,
-        ` ${product.category.toLowerCase()} `,
-        product.tags ? ` ${product.tags.join(' ').toLowerCase()} ` : ' '
+        product.tags ? ` ${product.tags.join(' ').toLowerCase()} ` : ' ',
       ].join(' ');
   
-      return searchTerms.every(term => {
-        // Exact matching for category
-        if (product.category.toLowerCase().split(' ').includes(term)) {
-          return true;
-        }
-        
-        // Whole word matching for other fields
-        return new RegExp(`\\b${term}\\b`).test(searchableFields);
-      });
+      // Exact matching for category
+      const categoryMatch = product.category.toLowerCase() === query.toLowerCase();
+  
+      // Whole word matching for other fields
+      const otherFieldsMatch = searchTerms.every((term) =>
+        new RegExp(`\\b${term}\\b`).test(searchableFields)
+      );
+  
+      return categoryMatch || otherFieldsMatch;
     });
   },
   

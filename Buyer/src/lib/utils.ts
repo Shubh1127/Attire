@@ -19,7 +19,15 @@ export function formatPrice(price: number | { price: number }): string {
     maximumFractionDigits: 0,
   }).format(priceValue);
 }
-
+export const formatDate = (dateString: string): string => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  };
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, options);
+};
 /**
  * Calculates discount percentage between original and discounted price
  * Works with both numbers and product objects
