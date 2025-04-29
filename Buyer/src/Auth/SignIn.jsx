@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../Auth/supabaseClient";
+import { supabase } from "../Auth/SupabaseClient";
 import {
   Tabs,
   TabsList,
