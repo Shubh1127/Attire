@@ -89,7 +89,6 @@ const registerWithGoogle = async () => {
       const user = session.data.session?.user;
 
       if (user) {
-        console.log('trying to register with google')
         try {
           const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/buyer/register`, {
             name: user.user_metadata.full_name,
@@ -158,7 +157,6 @@ const registerWithGoogle = async () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log("Buyer profile data:", response.data.buyer);
       setBuyer(response.data.buyer); // Update the buyer state with the fetched data
       localStorage.setItem("buyer", JSON.stringify(response.data.buyer)); // Update localStorage
     } catch (error) {

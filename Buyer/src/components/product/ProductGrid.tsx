@@ -8,11 +8,9 @@ const ProductGrid: React.FC = () => {
   const { theme } = useTheme();
 
   useEffect(() => {
-    console.log('Fetching all products...');
     fetchAllProducts();
   }, []);
 
-  console.log('All products:', allProducts);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

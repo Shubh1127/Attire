@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
 import { useBuyerContext } from '../Context/BuyerContext';
 import CartItem from '../components/cart/CartItem';
+import CartItemSkeleton from './CartItemSkeleton'; // Import the skeleton
 import Button from '../components/ui/Button';
 import { useTheme } from '../Context/ThemeContext';
 import { formatPrice, cn } from '../lib/utils';
@@ -10,6 +11,7 @@ import { formatPrice, cn } from '../lib/utils';
 const CartPage: React.FC = () => {
   const { theme } = useTheme();
   const { buyer, fetchCart } = useBuyerContext();
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   const shippingCost = buyer?.cart?.reduce((total, item) => total + item.quantity * 99, 0) > 999 ? 0 : 99;
   const subtotal = buyer?.cart?.reduce((total, item) => total + item.quantity * item.price, 0) || 0;
@@ -17,8 +19,14 @@ const CartPage: React.FC = () => {
   const total = subtotal + shippingCost + tax;
 
   useEffect(() => {
-    fetchCart(); // Fetch cart data on component mount
-  }, [fetchCart]);
+    const fetchData = async () => {
+      setIsLoading(true);
+      await fetchCart(); // Fetch cart data
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   if (!buyer?.cart || buyer.cart.length === 0) {
     return (
@@ -56,9 +64,11 @@ const CartPage: React.FC = () => {
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className={`rounded-lg shadow-sm border p-6 ${theme === 'dark' ? 'bg-navy-800 border-navy-700' : 'bg-white border-gray-200'}`}>
-              {buyer.cart.map((item) => (
-                <CartItem key={item._id} item={item} onUpdate={fetchCart} />
-              ))}
+              {isLoading
+                ? Array.from({ length: 3 }).map((_, index) => <CartItemSkeleton key={index} />) // Render skeletons while loading
+                : buyer.cart.map((item) => (
+                    <CartItem key={item._id} item={item} onUpdate={fetchCart} />
+                  ))}
             </div>
           </div>
 

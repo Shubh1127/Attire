@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../Auth/supabaseClient";
 import {
   Tabs,
   TabsList,
@@ -28,7 +29,26 @@ export default function AuthTabs() {
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);  
   const navigate = useNavigate();
+
+  // Check if the user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      const { data: session } = await supabase.auth.getSession();
+      const supabaseUser = session?.session?.user;
+
+      if (token || supabaseUser) {
+        setIsAuthenticated(true);
+        navigate("/"); // Redirect to home if logged in
+      } else {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
