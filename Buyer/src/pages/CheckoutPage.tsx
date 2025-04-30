@@ -152,7 +152,7 @@ const CheckoutPage: React.FC = () => {
         handler: function(response: any) {
           // Verify payment on your server
           axios.post(
-            'http://localhost:3000/order/pay/verify',
+            `${import.meta.env.VITE_BACKEND_URL}/order/pay/verify`,
             {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
