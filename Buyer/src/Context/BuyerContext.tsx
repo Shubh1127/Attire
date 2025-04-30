@@ -469,7 +469,7 @@ export const BuyerProvider = ({ children }) => {
       size?: string;
       color?: string;
     }>;
-    shippingAddress: string; // address ID
+    shippingAddressId: string; // address ID
     paymentMethod: 'card' | 'cod';
   }) => {
     try {
@@ -563,7 +563,7 @@ export const BuyerProvider = ({ children }) => {
       setLoading(true);
       const response = await axios.post(
         `${API_URL}/order/payment/create-order`,
-        { orderId },
+        { orderId }, // Only sending the order ID
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
       );
       return response.data;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import Button from '../ui/Button';
 import { useBuyerContext } from '../../Context/BuyerContext';
 

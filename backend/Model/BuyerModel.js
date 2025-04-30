@@ -26,7 +26,7 @@ const buyerSchema = new mongoose.Schema({
   },
   addresses: { type: [addressSchema], default: [] },
   orders: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "Orders", default: [] },
+    { type: mongoose.Schema.Types.ObjectId, ref: "Order", default: [] },
   ],
   cart: [
     {

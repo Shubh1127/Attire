@@ -7,7 +7,7 @@ import Button from '../components/ui/Button';
 import { formatPrice, cn } from '../lib/utils';
 import { useTheme } from '../Context/ThemeContext';
 import supabase from '../Auth/SupabaseClient';
-
+import axios from 'axios';
 interface Address {
   _id: string;
   title: string;
@@ -21,7 +21,7 @@ interface Address {
 }
 
 interface CartItem {
-  _id: string;
+  productId: string;
   name: string;
   price: number;
   quantity: number;
@@ -114,42 +114,70 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handleRazorpayPayment = async () => {
-    if (!selectedAddressId || !selectedAddress) return;
-    
+    console.log(selectedAddressId)
+    if (!selectedAddressId || !buyer?.cart?.length) return;
+    console.log('Razorpay payment initiated');
     try {
       setError(null);
       setIsLoading(true);
       
-      const paymentData = await initiateRazorpayPayment({
-        amount: total,
-        currency: 'INR',
-        buyerId: buyer?._id || '',
-        shippingAddress: selectedAddress,
-        cartItems: buyer?.cart || []
-      });
-
+      // 1. First create the order in your database with status 'pending'
+      console.log(buyer.cart[0]._id);
+      const orderData = {
+        items: buyer.cart.map((item: CartItem) => ({
+          product_id: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color
+        })),
+        shippingAddressId: selectedAddressId,
+        paymentMethod: 'card'
+      };
+  
+      // Create the order first
+      const order = await createOrder(orderData);
+      
+      // 2. Then initiate Razorpay payment with just the order ID
+      const paymentData = await initiateRazorpayPayment(order._id);
+  
+      // 3. Set up Razorpay options
       const options = {
-        ...paymentData,
-        handler: async (response: any) => {
-          try {
-            const orderData = {
-              items: buyer?.cart?.map((item: CartItem) => ({
-                product_id: item._id,
-                quantity: item.quantity,
-                size: item.size,
-                color: item.color
-              })) || [],
-              shippingAddress: selectedAddressId,
-              paymentMethod: 'card',
-              razorpayPaymentId: response.razorpay_payment_id
-            };
-            
-            const order = await createOrder(orderData);
-            navigate('/order-confirmation', { state: { orderId: order._id } });
-          } catch (error) {
-            setError('Order creation failed after payment');
-            console.error('Order creation after payment failed:', error);
-          }
+        key: paymentData.key,
+        amount: paymentData.order.amount.toString(), // Ensure amount is string
+        currency: paymentData.order.currency,
+        order_id: paymentData.order.id,
+        name: "Your Store Name",
+        description: `Order #${order._id}`,
+        image: "/logo.png", // Your logo
+        handler: function(response: any) {
+          // Verify payment on your server
+          axios.post(
+            'http://localhost:3000/order/pay/verify',
+            {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: order._id
+            },
+            {
+              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            }
+          )
+          .then(() => {
+            navigate('/order-confirmation', { state: { order } });
+          })
+          .catch((error) => {
+            setError('Payment verification failed');
+            console.error('Payment verification error:', error);
+          });
+        },
+        prefill: {
+          name: buyer.name || '',
+          email: buyer.email || '',
+          contact: buyer.phoneNumber || ''
+        },
+        theme: {
+          color: theme === 'dark' ? '#4ade80' : '#1e40af' // Green for dark, navy for light
         },
         modal: {
           ondismiss: () => {
@@ -158,7 +186,8 @@ const CheckoutPage: React.FC = () => {
           }
         }
       };
-
+  
+      // @ts-ignore - Razorpay is loaded via CDN
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
@@ -168,7 +197,6 @@ const CheckoutPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   if (isLoading) {
     return (
       <div className={`min-h-screen pt-24 pb-16 flex items-center justify-center ${
@@ -365,13 +393,13 @@ const CheckoutPage: React.FC = () => {
                         'text-sm font-medium',
                         theme === 'dark' ? 'text-green-400' : 'text-gray-900'
                       )}>
-                        Credit/Debit Card (Razorpay)
+                        Credit/Debit Card / UPI
                       </p>
                       <p className={cn(
                         'text-xs',
                         theme === 'dark' ? 'text-green-300' : 'text-gray-500'
                       )}>
-                        Securely pay with your credit or debit card
+                        Securely pay with your credit or debit card OR UPI
                       </p>
                     </div>
                   </div>

@@ -7,6 +7,7 @@ const CartRoutes = require('./Routes/Cart.Routes.js');
 const OwnerRoutes = require('./Routes/Owner.Routes.js');
 const ProductRoutes = require('./Routes/product.route.js');
 const cors = require('cors');
+const OrderRoutes = require('./Routes/Order.Routes.js');
 
 const app = express();
 
@@ -39,5 +40,6 @@ app.use('/buyer', BuyerRoutes);
 app.use('/Cart', CartRoutes);
 app.use('/owner', OwnerRoutes);
 app.use('/product', ProductRoutes);
+app.use('/order',OrderRoutes);
 
 module.exports = app;
