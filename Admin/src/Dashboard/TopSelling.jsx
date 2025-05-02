@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge"; // Adjust the path based on the actual location
+import { Badge } from "@/components/ui/badge"; // Adjust the path based on the actual location
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { ThemeContext } from "../Context/ThemeContext"; // Import ThemeContext
 
 const products = [
   {
@@ -51,38 +52,75 @@ const products = [
 ];
 
 const TopSellingProducts = () => {
+  const { theme } = useContext(ThemeContext); // Access theme from ThemeContext
+
   return (
-    <Card>
+    <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
       <CardHeader>
-        <CardTitle>Top Selling Products</CardTitle>
+        <CardTitle className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
+          Top Selling Products
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ul className="divide-y divide-gray-200">
+        <ul className={theme === 'dark' ? 'divide-y divide-gray-700' : 'divide-y divide-gray-200'}>
           {products.map((product) => (
-            <li key={product.id} className="p-4 hover:bg-gray-50">
+            <li
+              key={product.id}
+              className={`p-4 ${
+                theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+              }`}
+            >
               <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border border-gray-200">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                <div
+                  className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border ${
+                    theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+                  }`}
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p
+                    className={`text-sm font-medium ${
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
                     {product.name}
                   </p>
                   <div className="flex items-center mt-1">
                     <Badge className="mr-2">{product.category}</Badge>
-                    <span className="text-sm text-gray-500">{product.price}</span>
+                    <span
+                      className={`text-sm ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}
+                    >
+                      {product.price}
+                    </span>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center space-x-1">
-                    <span className="text-sm font-medium text-gray-900">{product.sold} sold</span>
+                    <span
+                      className={`text-sm font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}
+                    >
+                      {product.sold} sold
+                    </span>
                     {product.trend === 'up' ? (
                       <TrendingUp size={16} className="text-green-500" />
                     ) : (
                       <TrendingDown size={16} className="text-red-500" />
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p
+                    className={`mt-1 text-xs ${
+                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
                     {product.stock} in stock
                   </p>
                 </div>

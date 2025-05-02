@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Eye, ArrowUpDown, Download, Search } from 'lucide-react';
-import { Card} from "@/components/ui/card";
-import { Badge  } from '@/components/ui/badge';
+import { Card } from "@/components/ui/card";
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ThemeContext } from "@/Context/ThemeContext";
 
 const orders = [
   {
@@ -35,6 +36,7 @@ const orders = [
 ];
 
 const OrderTable = () => {
+  const { theme } = useContext(ThemeContext);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -80,26 +82,45 @@ const OrderTable = () => {
         return 'default';
     }
   };
-  
+
+  // Theme-aware styles
+  const inputStyles = `pl-10 pr-4 py-2 rounded-md focus:ring-2 focus:ring-offset-2 sm:text-sm ${
+    theme === 'dark'
+      ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+      : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+  }`;
+
+  const selectStyles = `rounded-md py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+    theme === 'dark'
+      ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+      : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+  }`;
+
   return (
-    <Card>
+    <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6">
-        <h3 className="text-lg font-medium">Orders</h3>
+        <h3 className={`text-lg font-medium ${
+          theme === 'dark' ? 'text-white' : ''
+        }`}>
+          Orders
+        </h3>
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-gray-400" />
+            <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              <Search size={16} />
             </div>
             <input
               type="text"
               placeholder="Search orders or customers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+              className={inputStyles}
             />
           </div>
           <select
-            className="rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-gray-500 focus:outline-none focus:ring-gray-500"
+            className={selectStyles}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -113,49 +134,76 @@ const OrderTable = () => {
           <Button 
             variant="secondary" 
             size="sm"
-            icon={<Download size={16} />}
+            icon={<Download size={16} className={theme === 'dark' ? 'text-gray-300' : ''} />}
           >
-            Export
+            <span className={theme === 'dark' ? 'text-gray-300' : ''}>Export</span>
           </Button>
         </div>
       </div>
       
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y">
+          <thead className={theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}>
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 <div className="flex items-center">
                   Order
                   <ArrowUpDown size={14} className="ml-1" />
                 </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 Customer
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 Date
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 Status
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 Payment
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 Total
               </th>
-              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+              }`}>
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className={`divide-y ${
+            theme === 'dark' ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'
+          }`}>
             {filteredOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
+              <tr 
+                key={order.id} 
+                className={theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                  <div className="text-xs text-gray-500">{order.items} items</div>
+                  <div className={`text-sm font-medium ${
+                    theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    {order.id}
+                  </div>
+                  <div className={`text-xs ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    {order.items} items
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -163,12 +211,22 @@ const OrderTable = () => {
                       <img className="h-8 w-8 rounded-full" src={order.customer.avatar} alt="" />
                     </div>
                     <div className="ml-3">
-                      <div className="text-sm font-medium text-gray-900">{order.customer.name}</div>
-                      <div className="text-xs text-gray-500">{order.customer.email}</div>
+                      <div className={`text-sm font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {order.customer.name}
+                      </div>
+                      <div className={`text-xs ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        {order.customer.email}
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   {new Date(order.date).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -181,16 +239,18 @@ const OrderTable = () => {
                     {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                   </Badge>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                   {order.total}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    icon={<Eye size={16} />}
+                    icon={<Eye size={16} className={theme === 'dark' ? 'text-gray-300' : ''} />}
                   >
-                    View
+                    <span className={theme === 'dark' ? 'text-gray-300' : ''}>View</span>
                   </Button>
                 </td>
               </tr>
@@ -199,13 +259,19 @@ const OrderTable = () => {
         </table>
       </div>
       
-      <div className="flex items-center justify-between p-6 border-t border-gray-200">
+      <div className={`flex items-center justify-between p-6 border-t ${
+        theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+      }`}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-          <p className="text-sm text-gray-500">
+          <p className={`text-sm ${
+            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          }`}>
             Showing <span className="font-medium">{filteredOrders.length}</span> of{' '}
             <span className="font-medium">{orders.length}</span> orders
           </p>
-          <span className="text-sm text-gray-500 sm:ml-4">
+          <span className={`text-sm ${
+            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          } sm:ml-4`}>
             Total Amount: <span className="font-medium">${totalAmount.toFixed(2)}</span>
           </span>
         </div>

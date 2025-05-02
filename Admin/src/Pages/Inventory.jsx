@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Package, AlertTriangle, TrendingDown, ArrowUpDown, Search, Download, Edit, Trash2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useOwner } from "@/Context/OwnerContext";
+import { ThemeContext } from "@/Context/ThemeContext"; // Import ThemeContext
 
 const Inventory = () => {
-  const { fetchProducts,deleteProduct,editProduct } = useOwner();
+  const { fetchProducts, deleteProduct, editProduct } = useOwner();
+  const { theme } = useContext(ThemeContext); // Access theme from ThemeContext
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -67,6 +69,7 @@ const Inventory = () => {
       quantity: product.quantity
     });
   };
+
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditFormData(prev => ({
@@ -114,6 +117,7 @@ const Inventory = () => {
       console.error("Error:", error);
     }
   };
+
   const handleEditSubmit = async (productId) => {
     try {
       const updates = {
@@ -135,52 +139,66 @@ const Inventory = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={theme === 'dark' ? 'space-y-6 bg-gray-800 text-white' : 'space-y-6 bg-gray-50 text-gray-900'}>
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Inventory Management</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+          Inventory Management
+        </h1>
+        <p className={theme === 'dark' ? 'mt-1 text-sm text-gray-400' : 'mt-1 text-sm text-gray-500'}>
           Track stock levels, manage inventory, and monitor product availability
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
           <div className="p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-blue-50">
+              <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-blue-900' : 'bg-blue-50'}`}>
                 <Package className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Items</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalItems}</p>
+                <p className={theme === 'dark' ? 'text-sm font-medium text-gray-400' : 'text-sm font-medium text-gray-600'}>
+                  Total Items
+                </p>
+                <p className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+                  {stats.totalItems}
+                </p>
               </div>
             </div>
           </div>
         </Card>
 
-        <Card>
+        <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
           <div className="p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-amber-50">
+              <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-amber-900' : 'bg-amber-50'}`}>
                 <AlertTriangle className="h-6 w-6 text-amber-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.lowStock}</p>
+                <p className={theme === 'dark' ? 'text-sm font-medium text-gray-400' : 'text-sm font-medium text-gray-600'}>
+                  Low Stock Items
+                </p>
+                <p className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+                  {stats.lowStock}
+                </p>
               </div>
             </div>
           </div>
         </Card>
 
-        <Card>
+        <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
           <div className="p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-red-50">
+              <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-red-900' : 'bg-red-50'}`}>
                 <TrendingDown className="h-6 w-6 text-red-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Out of Stock</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.outOfStock}</p>
+                <p className={theme === 'dark' ? 'text-sm font-medium text-gray-400' : 'text-sm font-medium text-gray-600'}>
+                  Out of Stock
+                </p>
+                <p className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+                  {stats.outOfStock}
+                </p>
               </div>
             </div>
           </div>

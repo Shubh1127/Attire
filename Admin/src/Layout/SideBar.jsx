@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSession } from "@supabase/auth-helpers-react";
 import {
@@ -10,16 +10,20 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Boxes,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { ThemeContext } from "../Context/ThemeContext"; // Adjust the path as needed
 
 const Sidebar = () => {
   const storedOwner = localStorage.getItem("user");
   const Owner = storedOwner ? JSON.parse(storedOwner) : null;
   const session = useSession();
   const user = session?.user;
-  // console.log(user?.user_metadata?.avatar_url);
   const [collapsed, setCollapsed] = useState(true);
   const location = useLocation();
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
   const links = [
     {
       name: "Dashboard",
@@ -35,25 +39,45 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`bg-white h-screen border-r border-gray-200 transition-all duration-300 ease-in-out ${
+      className={`h-screen border-r transition-all duration-300 ease-in-out ${
         collapsed ? "w-[78px]" : "w-[240px]"
+      } ${
+        theme === "dark"
+          ? "bg-gray-900 border-gray-700"
+          : "bg-white border-gray-200"
       }`}
     >
       <div className="flex flex-col h-full">
-        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+        <div
+          className={`p-4 border-b flex justify-between items-center ${
+            theme === "dark" ? "border-gray-700" : "border-gray-200"
+          }`}
+        >
           {!collapsed && (
-            <div className="font-semibold text-xl tracking-tight text-gray-800">
+            <div
+              className={`font-semibold text-xl tracking-tight ${
+                theme === "dark" ? "text-white" : "text-gray-800"
+              }`}
+            >
               ATTIRE
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded-md hover:bg-gray-100"
+            className={`p-1 rounded-md ${
+              theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"
+            }`}
           >
             {collapsed ? (
-              <ChevronsRight size={18} />
+              <ChevronsRight
+                size={18}
+                className={theme === "dark" ? "text-white" : "text-gray-800"}
+              />
             ) : (
-              <ChevronsLeft size={18} />
+              <ChevronsLeft
+                size={18}
+                className={theme === "dark" ? "text-white" : "text-gray-800"}
+              />
             )}
           </button>
         </div>
@@ -66,11 +90,19 @@ const Sidebar = () => {
                   to={link.href}
                   className={`flex items-center px-3 py-2.5 rounded-md transition-colors ${
                     location.pathname === link.href
-                      ? "bg-gray-100 text-gray-900"
+                      ? theme === "dark"
+                        ? "bg-gray-800 text-white"
+                        : "bg-gray-100 text-gray-900"
+                      : theme === "dark"
+                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
-                  <span className="flex-shrink-0">{link.icon}</span>
+                  <span className="flex-shrink-0">
+                    {React.cloneElement(link.icon, {
+                      className: theme === "dark" ? "text-white" : "text-gray-800",
+                    })}
+                  </span>
                   {!collapsed && <span className="ml-3">{link.name}</span>}
                 </Link>
               </li>
@@ -78,9 +110,35 @@ const Sidebar = () => {
           </ul>
         </nav>
 
-        <div></div>
+        {/* <div className="p-4">
+          <button
+            onClick={toggleTheme}
+            className={`flex items-center justify-center w-full p-2 rounded-md ${
+              theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"
+            }`}
+          >
+            {theme === "dark" ? (
+              <Sun className="text-yellow-400" size={20} />
+            ) : (
+              <Moon className="text-gray-600" size={20} />
+            )}
+            {!collapsed && (
+              <span
+                className={`ml-3 ${
+                  theme === "dark" ? "text-white" : "text-gray-600"
+                }`}
+              >
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              </span>
+            )}
+          </button>
+        </div> */}
 
-        <div className="p-4 border-t border-gray-200">
+        <div
+          className={`p-4 border-t ${
+            theme === "dark" ? "border-gray-700" : "border-gray-200"
+          }`}
+        >
           <div
             className={`flex items-center ${
               collapsed ? "justify-center" : "space-x-3"
@@ -91,7 +149,7 @@ const Sidebar = () => {
                 src={
                   user?.user_metadata?.avatar_url ||
                   Owner?.profileImage ||
-                  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBw8QEA8QDQ8QDw8PEA8OEBAPDRAPDw0PFhEWFhURExUYHSggGBonHRYVITIhJSkrLjAuFx8zOD84NyotMCwBCgoKDQ0NDg0NDi0ZHxkrKysrKystKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrK//AABEIAOkA2AMBIgACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAAAwQBAgUGB//EADcQAAICAQIDBQYDCAMBAAAAAAABAgMRBBIhMVEFE0FhcSIygZGhsQYUI0JScsHR4fDxFWKiM//EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A+4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABhsDIKd2viuEfafySKVupnLm+HRcEB1LNRCPOS9ObIJ9oR8E39DmgqLz7RfhD/1/Yx/yMv3V82UgBeXaL8YL4S/sSR7Qj4pr6nNAHZr1MJcpL05MlOCS1aiceT4dHxRFdkFOjXxfCXsvr4FtMDIAAAAAAAAAAAAAAAABBqdQoLq3yQG11ygsy+C8WczUamU+fBdF/Mjsm5PMuLNSoAAAAbQrb5IDUE603V/JG35ZdX8gKwJ5aZ+DyQyg1zWAMAAAS0amUOXFdGRADs0XqayvivFEpwq5uLzF4aOtpdQprpJc0RU4AAAAAAAAAAAGGwI77lBZfwXVnIsm5PL5v/MEmru3y8lwX9SEqAAAAE+mr/afwAzVR4y+RYAIoAABhoyAKt1OOK5dOhCdAp314fDk/oBGACoGYTcWmuDRgAdnT3KayviujJTjaW7ZLPg+D9DsJkVkAAAAAAAAqdo24jtXOX0RbONq7N02/BcF6ICIAFQAABLPAvxWFgp0L2kXQoACAAAAAAGl0cp/M3AHPAkuLBUAAAOl2ddlbXzjy9Dmkmms2yT8OT9AO0ACKAAAAAItTPbCT8vqcY6XaUvZS6s5pUAAAAAEmn95fH7FwoQeGn5l8KAAgAAAAAABrZLCb8gKUub9WYAKgAAAAA7GlnuhF+WCYpdmS9lro/uXSKAAAAAOf2o/cX8T+xRLvanOPoykVAAAAAALWnsyseK+qKpmLw8oC+COq1S9ehIRQAAAAAK2pn4dOZvddjguf2KoAAFQAAAAAXey3xkvJP7nROb2Z70v4f5nSIoAAAAA5/ai9x/xL7FE6XacfZT6P7nNKgAAAAAAAAmTQ1D8eJCbxpk/D5gWVfHrj1M97H95fMgWmfVGfy3/AG+hFSSvj6+hDO9vlwX1MvTPqjSVMl4fIDQAFQAAAAAAABd7LXGT8kjolLsyPsyfV/YukUAAAAARamG6El5cPU4x3jjamvbNrw5r0AiABUADMItvCAwTV6d/tcPLxJqqlHzfUkIrWEEuSNgAAAAAADWUE+aILNO/2ePl4lkAc9guWVKXk+pUnBp4ZUYAAAAk09e6SXz9AOppIbYRXlkmAIoAAAAAFPtGrK3LnHn6Fww0BwgS6qnZLHg+K9CJLPIqMwi28L/RdrgksL/ZiqvavPxNyKAAAAAAAAAAAAABrOCawzYAUZwaeH/s1LttakvsUmscGVA6PZ1WE5Px4L0Kemp3yS8ObfkdiKxwQGQARQAAAAAAAEWopU1h/B9GUKaXFvdz5HUI7a8+oFUBrHMAAAAAAAAAAAAAAAAACK6lyxt5/clSzyLVVePUDXTUKCx4+L6smAAAAAAAAAAAAAAANLIJ8ytOtrn8y4YaApAsToXhwIZQa5oDUAAAAAAAAA2jBvkgNTaEG+XzJoUdeJKkBrXWkbgAAAAAAAAAAAAAAAAAAAAAAGkqovw+Ro9OvBkwAr/l31Mfl31RZAFdad9UbLTrxZMANI1RXh8+JuAAAAAAAAAAAAAAAAAAAAAA0ssUU5S4JJt+iWWBuCKi+M4xnB5jOMZxfLMWsp8fI1esry1vjlTjW1uWVOUVKMX5tNPHmBODG40nfGLipSSc5bYpvjKW1ywvPCb+AEgMbiKjUwnu2POybrlzWJrGV9UBMDG4bl/jAyDBS0/a2nsdihYv005SclKEdibTnGUklKKaa3LK4AXgcv8A5/TbapKVjhcoOuyOm1Eq5bniOZqG1cerRsu3tLibVuVBxXCuxuxyltj3S2/qpy4Jwzl8AOkChHtiiTqjCUpu1bo7KbZ4jnbmbjF92s5XtY4p9DNva+ni7U7E5UuuNkYRlZOMp+5FRim3J/urLAvAo1dsaecqYxti56iMp1Q475xj7z281jk84w+HMl0Wvpu7zubI2d1Y6bHF5UbEk3HPXDQFkAAAAAAAAAAAAAOJ232VZdbVZVsWyFkHKc20oy5pV7Gm+HvbotefI7ZgDylf4cvp7l0On9KFcZVysshCyf5eyqc9yi+OZRfLjjjg0q/C9kc+xp7X3ukuzOycXOVdEKpwl7DwvZck+PPGFzPXBAeT034YsTStlGce/rsnJ32S/MwjKxtzr2JRl7a8ZZx5I2r/AA3apwlilxr1MrowlbKclGVdkZS7zu0205xkotP3cbunqjD/AKfcDyVP4b1EcN9xJRVClQ7re61brVqldbLY9s5d5F42y/8AmuL4Yvdn9j6im625SrmrXLFcpzS06bhnu3tecpPOVzjHzPQADy67BuVcIuvTWODlu332patuLSut/Te2aznHtc3xXAhn+ErHFqdkbJtWx7yUpqUs6aNcG+mLI7/LnzPXACCFD3Qk5yzGvY4J/pyfD28Yznh9WcNdjai6Vz1brr3Shsnp7u8/RhPdGh1WUqKi+cuLy/LCXowBw9F2NbGOlrutU66N9k/CVt2f0+CiltinJ/xbehQh+HtSvyr3UOegjVXp1vmo6mME4t2+z+m3F8luw+PHkeqZlgear7CvjKpx7qMlPvLL43WqyOb52yphXt2zh7bWZNc28G2k7C1GndrpuV++FUcahxrlY05OcpWVV5jJ7vew/Tlj0YA87pOyNRV+QSVM1p9/eyds4y2y3LbH2Hv2qXOTWWuOMl/sfSW12ap2QqjC27va+7tlNpd3GGJJwil7meDfveWX0wBkAAAAAAAH/9k="
+                  "data:image/jpeg;base64,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"
                 }
                 alt="Admin"
                 className="w-full h-full object-cover"
@@ -99,10 +157,18 @@ const Sidebar = () => {
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p
+                  className={`text-sm font-medium truncate ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   {user?.user_metadata?.full_name || Owner?.name}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <p
+                  className={`text-xs truncate ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-500"
+                  }`}
+                >
                   {user?.email || Owner?.email}
                 </p>
               </div>

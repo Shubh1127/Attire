@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Upload, X ,Loader2 } from "lucide-react";
+import React, { useState, useContext } from "react";
+import { Upload, X, Loader2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useOwner } from "@/Context/OwnerContext";
+import { ThemeContext } from "@/Context/ThemeContext";
 
 const categories = [
   { id: "men", name: "Men" },
@@ -32,7 +33,9 @@ const colors = [
   { id: "brown", name: "Brown", hex: "#A52A2A" },
 ];
 
+
 const AddProduct = () => {
+  const { theme } = useContext(ThemeContext);
   const { addProduct } = useOwner();
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
@@ -42,7 +45,7 @@ const AddProduct = () => {
     name: "",
     price: "",
     description: "",
-    mainCategory: "men", // Set default to one of the enum values
+    mainCategory: "men",
     category: "",
     sizes: [],
     colors: [],
@@ -50,166 +53,199 @@ const AddProduct = () => {
     quantity: 1,
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // Theme-aware styles
+  const inputStyles = `block w-full rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-offset-2 sm:text-sm ${
+    theme === 'dark' 
+      ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500' 
+      : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+  }`;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const labelStyles = `block text-sm font-medium mb-1 ${
+    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+  }`;
 
-    const productData = {
-      ...formData,
-      sizes: selectedSizes.join(","),
-      colors: selectedColors.join(","),
-    };
+  const cardStyles = theme === 'dark' ? 'bg-gray-800 border-gray-700' : '';
 
-    const formDataObj = new FormData();
+  const buttonVariant = (isSelected) => 
+    theme === 'dark'
+      ? isSelected
+        ? 'bg-gray-600 text-white border-gray-600'
+        : 'bg-gray-700 text-gray-200 border-gray-600 hover:bg-gray-600'
+      : isSelected
+        ? 'bg-gray-900 text-white border-gray-900'
+        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50';
 
-    // Append product data
-    Object.keys(productData).forEach((key) => {
-      formDataObj.append(key, productData[key]);
-    });
-
-    // Append photos
-    selectedImages.forEach((image) => {
-      formDataObj.append("photo", image);
-    });
-
-    // console.log("Form Data:", Object.fromEntries(formDataObj.entries())); // For debugging
-
-    try {
-      await addProduct(formDataObj);
-      alert("Product added successfully!");
-      // Reset form after successful submission
-      setFormData({
-        name: "",
-        price: "",
-        description: "",
-        mainCategory: "",
-        category: "",
-        sizes: [],
-        colors: [],
-        status: "Regular",
-        quantity: 1,
-      });
-      setSelectedImages([]);
-      setSelectedSizes([]);
-      setSelectedColors([]);
-    } catch (error) {
-      alert("Failed to add product.");
-      console.error("Error:", error);
-    }finally {
-      setIsLoading(false); // Set loading to false when done
-    }
-  };
-
-  const handleSizeToggle = (sizeId) => {
-    if (selectedSizes.includes(sizeId)) {
-      setSelectedSizes(selectedSizes.filter((id) => id !== sizeId));
-    } else {
-      setSelectedSizes([...selectedSizes, sizeId]);
-    }
-  };
-
-  const handleColorToggle = (colorId) => {
-    if (selectedColors.includes(colorId)) {
-      setSelectedColors(selectedColors.filter((id) => id !== colorId));
-    } else {
-      setSelectedColors([...selectedColors, colorId]);
-    }
-  };
-
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-
-    // Check if adding these files would exceed 5
-    if (selectedImages.length + files.length > 5) {
-      alert("You can upload a maximum of 5 photos");
-      return;
-    }
-
-    setSelectedImages((prev) => [...prev, ...files]);
-  };
-
-  const removeImage = (index) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // Create image preview URLs
-  const imagePreviews = selectedImages.map((file) => URL.createObjectURL(file));
+        const handleInputChange = (e) => {
+          const { name, value } = e.target;
+          setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+          }));
+        };
+      
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          setIsLoading(true);
+      
+          const productData = {
+            ...formData,
+            sizes: selectedSizes.join(","),
+            colors: selectedColors.join(","),
+          };
+      
+          const formDataObj = new FormData();
+      
+          // Append product data
+          Object.keys(productData).forEach((key) => {
+            formDataObj.append(key, productData[key]);
+          });
+      
+          // Append photos
+          selectedImages.forEach((image) => {
+            formDataObj.append("photo", image);
+          });
+      
+          // console.log("Form Data:", Object.fromEntries(formDataObj.entries())); // For debugging
+      
+          try {
+            await addProduct(formDataObj);
+            alert("Product added successfully!");
+            // Reset form after successful submission
+            setFormData({
+              name: "",
+              price: "",
+              description: "",
+              mainCategory: "",
+              category: "",
+              sizes: [],
+              colors: [],
+              status: "Regular",
+              quantity: 1,
+            });
+            setSelectedImages([]);
+            setSelectedSizes([]);
+            setSelectedColors([]);
+          } catch (error) {
+            alert("Failed to add product.");
+            console.error("Error:", error);
+          }finally {
+            setIsLoading(false); // Set loading to false when done
+          }
+        };
+      
+        const handleSizeToggle = (sizeId) => {
+          if (selectedSizes.includes(sizeId)) {
+            setSelectedSizes(selectedSizes.filter((id) => id !== sizeId));
+          } else {
+            setSelectedSizes([...selectedSizes, sizeId]);
+          }
+        };
+      
+        const handleColorToggle = (colorId) => {
+          if (selectedColors.includes(colorId)) {
+            setSelectedColors(selectedColors.filter((id) => id !== colorId));
+          } else {
+            setSelectedColors([...selectedColors, colorId]);
+          }
+        };
+      
+        const handleImageUpload = (e) => {
+          const files = Array.from(e.target.files);
+      
+          // Check if adding these files would exceed 5
+          if (selectedImages.length + files.length > 5) {
+            alert("You can upload a maximum of 5 photos");
+            return;
+          }
+      
+          setSelectedImages((prev) => [...prev, ...files]);
+        };
+      
+        const removeImage = (index) => {
+          setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+        };
+      
+        // Create image preview URLs
+        const imagePreviews = selectedImages.map((file) => URL.createObjectURL(file));
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
+      <Card className={cardStyles}>
         <CardHeader>
-          <CardTitle>Product Information</CardTitle>
+          <CardTitle className={theme === 'dark' ? 'text-white' : ''}>
+            Product Information
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-6">
-          <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Product Image
-  </label>
-  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-    {/* Image Preview Container - Scrollable on mobile */}
-    <div className="flex gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap sm:overflow-visible">
-      {imagePreviews.map((preview, index) => (
-        <div key={index} className="flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg">
-          <img
-            src={preview}
-            alt="Product preview"
-            className="w-full h-full object-cover rounded-lg"
-          />
-          <button
-            type="button"
-            onClick={() => removeImage(index)}
-            className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-gray-200"
-          >
-            <X size={16} className="text-gray-500" />
-          </button>
-        </div>
-      ))}
-      
-      {/* Upload Button - Only shows if under limit */}
-      {selectedImages.length < 5 && (
-        <div className="flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer">
-          <Upload size={20} className="text-gray-500" />
-          <input
-            type="file"
-            multiple
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            onChange={handleImageUpload}
-            accept="image/*"
-          />
-        </div>
-      )}
-    </div>
+            <div>
+              <label className={labelStyles}>
+                Product Image
+              </label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex gap-3 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap sm:overflow-visible">
+                  {imagePreviews.map((preview, index) => (
+                    <div 
+                      key={index} 
+                      className={`flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed rounded-lg ${
+                        theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={preview}
+                        alt="Product preview"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className={`absolute -top-2 -right-2 rounded-full p-1 shadow-sm border ${
+                          theme === 'dark' 
+                            ? 'bg-gray-700 border-gray-600' 
+                            : 'bg-white border-gray-200'
+                        }`}
+                      >
+                        <X size={16} className={theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {selectedImages.length < 5 && (
+                    <div className={`flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer ${
+                      theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+                    }`}>
+                      <Upload size={20} className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} />
+                      <input
+                        type="file"
+                        multiple
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                      />
+                    </div>
+                  )}
+                </div>
 
-    {/* Help Text - Moves below on mobile */}
-    <div className="sm:flex-1">
-      <p className="text-sm text-gray-500">
-        Click the icon to upload high-quality images of your product.
-        Recommended size: 1000x1000px. Max size: 5MB. Supported formats: JPG,
-        PNG.
-      </p>
-      {/* Photo counter */}
-      <p className="text-sm text-gray-500 mt-2">
-        {selectedImages.length}/5 photos uploaded
-      </p>
-    </div>
-  </div>
-</div>
+                <div className="sm:flex-1">
+                  <p className={`text-sm ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    Click the icon to upload high-quality images of your product.
+                    Recommended size: 1000x1000px. Max size: 5MB. Supported formats: JPG,
+                    PNG.
+                  </p>
+                  <p className={`text-sm mt-2 ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    {selectedImages.length}/5 photos uploaded
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="name" className={labelStyles}>
                   Product Name
                 </label>
                 <input
@@ -218,17 +254,14 @@ const AddProduct = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                  className={inputStyles}
                   placeholder="e.g. Classic White T-Shirt"
                   required
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="category"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="category" className={labelStyles}>
                   Category
                 </label>
                 <select
@@ -236,7 +269,7 @@ const AddProduct = () => {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                  className={inputStyles}
                   required
                 >
                   <option value="">Select a category</option>
@@ -251,10 +284,7 @@ const AddProduct = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="price" className={labelStyles}>
                   Price ($)
                 </label>
                 <input
@@ -263,7 +293,7 @@ const AddProduct = () => {
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
-                  className="block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                  className={inputStyles}
                   placeholder="29.99"
                   min="0"
                   step="0.01"
@@ -272,10 +302,7 @@ const AddProduct = () => {
               </div>
 
               <div>
-                <label
-                  htmlFor="quantity"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="quantity" className={labelStyles}>
                   Stock Quantity
                 </label>
                 <input
@@ -284,7 +311,7 @@ const AddProduct = () => {
                   name="quantity"
                   value={formData.quantity}
                   onChange={handleInputChange}
-                  className="block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                  className={inputStyles}
                   placeholder="100"
                   min="0"
                   required
@@ -293,10 +320,7 @@ const AddProduct = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="description" className={labelStyles}>
                 Description
               </label>
               <textarea
@@ -305,7 +329,7 @@ const AddProduct = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={4}
-                className="block w-full border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                className={inputStyles}
                 placeholder="Enter product description..."
                 required
               />
@@ -314,14 +338,16 @@ const AddProduct = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={cardStyles}>
         <CardHeader>
-          <CardTitle>Product Variants</CardTitle>
+          <CardTitle className={theme === 'dark' ? 'text-white' : ''}>
+            Product Variants
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={labelStyles}>
                 Available Sizes
               </label>
               <div className="flex flex-wrap gap-2">
@@ -330,11 +356,7 @@ const AddProduct = () => {
                     key={size.id}
                     type="button"
                     onClick={() => handleSizeToggle(size.id)}
-                    className={`px-3 py-1.5 text-sm border rounded-md transition-colors ${
-                      selectedSizes.includes(size.id)
-                        ? "bg-gray-900 text-white border-gray-900"
-                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                    }`}
+                    className={`px-3 py-1.5 text-sm border rounded-md transition-colors ${buttonVariant(selectedSizes.includes(size.id))}`}
                   >
                     {size.name}
                   </button>
@@ -343,7 +365,7 @@ const AddProduct = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={labelStyles}>
                 Available Colors
               </label>
               <div className="flex flex-wrap gap-3">
@@ -354,8 +376,12 @@ const AddProduct = () => {
                     onClick={() => handleColorToggle(color.id)}
                     className={`relative w-8 h-8 rounded-full border-2 transition-all ${
                       selectedColors.includes(color.id)
-                        ? "border-gray-900 scale-110"
-                        : "border-gray-300"
+                        ? theme === 'dark' 
+                          ? 'border-gray-300 scale-110' 
+                          : 'border-gray-900 scale-110'
+                        : theme === 'dark' 
+                          ? 'border-gray-600' 
+                          : 'border-gray-300'
                     }`}
                   >
                     <span
@@ -366,7 +392,9 @@ const AddProduct = () => {
                   </button>
                 ))}
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className={`mt-2 text-sm ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`}>
                 Selected colors:{" "}
                 {selectedColors.length
                   ? colors
@@ -378,61 +406,35 @@ const AddProduct = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={labelStyles}>
                 Product Status
               </label>
               <div className="flex space-x-4">
-                <div className="flex items-center">
-                  <input
-                    id="status-regular"
-                    name="status"
-                    type="radio"
-                    value="Regular"
-                    checked={formData.status === "Regular"}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-500"
-                  />
-                  <label
-                    htmlFor="status-regular"
-                    className="ml-2 block text-sm text-gray-700"
-                  >
-                    Regular
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    id="status-new-arrival"
-                    name="status"
-                    type="radio"
-                    value="New Arrival"
-                    checked={formData.status === "New Arrival"}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-500"
-                  />
-                  <label
-                    htmlFor="status-new-arrival"
-                    className="ml-2 block text-sm text-gray-700"
-                  >
-                    New Arrival
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    id="status-on-sale"
-                    name="status"
-                    type="radio"
-                    value="On Sale"
-                    checked={formData.status === "On Sale"}
-                    onChange={handleInputChange}
-                    className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-500"
-                  />
-                  <label
-                    htmlFor="status-on-sale"
-                    className="ml-2 block text-sm text-gray-700"
-                  >
-                    On Sale
-                  </label>
-                </div>
+                {["Regular", "New Arrival", "On Sale"].map((status) => (
+                  <div key={status} className="flex items-center">
+                    <input
+                      id={`status-${status.toLowerCase().replace(' ', '-')}`}
+                      name="status"
+                      type="radio"
+                      value={status}
+                      checked={formData.status === status}
+                      onChange={handleInputChange}
+                      className={`h-4 w-4 ${
+                        theme === 'dark' 
+                          ? 'border-gray-500 text-gray-900 focus:ring-gray-500' 
+                          : 'border-gray-300 text-gray-900 focus:ring-gray-500'
+                      }`}
+                    />
+                    <label
+                      htmlFor={`status-${status.toLowerCase().replace(' ', '-')}`}
+                      className={`ml-2 block text-sm ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}
+                    >
+                      {status}
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -445,8 +447,8 @@ const AddProduct = () => {
         </Button>
         <Button
           type="submit"
-          className="bg-gray-900 text-white hover:bg-gray-800"
-          disabled={isLoading} // Disable button while loading
+          className={theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-900 hover:bg-gray-800'}
+          disabled={isLoading}
         >
           {isLoading ? (
             <>
