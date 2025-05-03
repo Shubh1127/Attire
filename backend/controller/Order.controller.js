@@ -208,26 +208,29 @@ const initiateRazorpayPayment = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;
-    const query = status ? { status } : {};
+
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
 
     const orders = await Order.find(query)
-      .populate("buyer_id", "name email")
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
 
-    const count = await Order.countDocuments(query);
+    const totalOrders = await Order.countDocuments(query);
 
     res.status(200).json({
       success: true,
       orders,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
+      totalPages: Math.ceil(totalOrders / limit),
+      currentPage: parseInt(page),
     });
   } catch (error) {
+    console.error('Error fetching orders:', error);
     res.status(500).json({
       success: false,
-      message: "Error fetching orders",
+      message: 'Error fetching orders',
       error: error.message,
     });
   }
@@ -502,7 +505,66 @@ const getSalesAnalytics = async (req, res) => {
   }
 };
 
+
+const fetchAllBuyersWithOrders = async (req, res) => {
+  try {
+    const buyersWithOrders = await Order.aggregate([
+      // Group orders by buyer_id and calculate total amount spent and last order date
+      {
+        $group: {
+          _id: "$buyer_id",
+          totalSpent: { $sum: "$total" },
+          lastOrderDate: { $max: "$createdAt" },
+        },
+      },
+      // Lookup buyer details from the Buyer collection
+      {
+        $lookup: {
+          from: "buyers", // Collection name in MongoDB (plural of Buyer model)
+          localField: "_id",
+          foreignField: "_id",
+          as: "buyerDetails",
+        },
+      },
+      // Unwind the buyerDetails array
+      {
+        $unwind: "$buyerDetails",
+      },
+      // Project the required fields
+      {
+        $project: {
+          _id: 0,
+          buyerId: "$buyerDetails._id",
+          name: "$buyerDetails.name",
+          email: "$buyerDetails.email",
+          phone: "$buyerDetails.phoneNumber",
+          photoUrl: "$buyerDetails.profileImageUrl",
+          totalSpent: 1,
+          lastOrderDate: 1,
+        },
+      },
+      // Sort by last order date in descending order
+      {
+        $sort: { lastOrderDate: -1 },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      buyers: buyersWithOrders,
+    });
+  } catch (error) {
+    console.error("Error fetching buyers with orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching buyers with orders",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
+  fetchAllBuyersWithOrders,
   createOrder,
   getAllOrders,
   getBuyerOrders,
