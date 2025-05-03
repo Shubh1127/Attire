@@ -5,37 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ThemeContext } from "@/Context/ThemeContext";
 
-const orders = [
-  {
-    id: 'ORD-7291',
-    customer: {
-      name: 'Emma Wilson',
-      email: 'emma@example.com',
-      avatar: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=1600'
-    },
-    date: '2023-05-28',
-    total: '$129.95',
-    status: 'pending',
-    items: 3,
-    paymentStatus: 'paid'
-  },
-  {
-    id: 'ORD-7292',
-    customer: {
-      name: 'John Miller',
-      email: 'john@example.com',
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1600'
-    },
-    date: '2023-05-27',
-    total: '$85.00',
-    status: 'shipped',
-    items: 2,
-    paymentStatus: 'paid'
-  },
-  // ... (rest of your orders data)
-];
-
-const OrderTable = () => {
+const OrderTable = ({ orders = [] }) => {
   const { theme } = useContext(ThemeContext);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,22 +13,22 @@ const OrderTable = () => {
   const filteredOrders = orders.filter(order => {
     const matchesStatus = statusFilter ? order.status === statusFilter : true;
     const matchesSearch = searchQuery
-      ? order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.id.toLowerCase().includes(searchQuery.toLowerCase())
+      ? order.shippingAddress.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order._id.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     return matchesStatus && matchesSearch;
   });
 
   const totalAmount = filteredOrders.reduce((sum, order) => {
-    return sum + parseFloat(order.total.replace('$', ''));
+    return sum + order.total;
   }, 0);
     
   const getStatusBadgeVariant = (status) => {
     switch (status) {
       case 'pending':
+      case 'confirmed':
         return 'warning';
       case 'processing':
-        return 'info';
       case 'shipped':
         return 'info';
       case 'delivered':
@@ -72,7 +42,7 @@ const OrderTable = () => {
   
   const getPaymentStatusBadgeVariant = (status) => {
     switch (status) {
-      case 'paid':
+      case 'completed':
         return 'success';
       case 'refunded':
         return 'warning';
@@ -125,7 +95,7 @@ const OrderTable = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
             <option value="processing">Processing</option>
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
@@ -149,7 +119,7 @@ const OrderTable = () => {
                 theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
               }`}>
                 <div className="flex items-center">
-                  Order
+                  Order ID
                   <ArrowUpDown size={14} className="ml-1" />
                 </div>
               </th>
@@ -190,36 +160,38 @@ const OrderTable = () => {
           }`}>
             {filteredOrders.map((order) => (
               <tr 
-                key={order.id} 
+                key={order._id} 
                 className={theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className={`text-sm font-medium ${
                     theme === 'dark' ? 'text-white' : 'text-gray-900'
                   }`}>
-                    {order.id}
+                    {order._id.slice(-8).toUpperCase()}
                   </div>
                   <div className={`text-xs ${
                     theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
                   }`}>
-                    {order.items} items
+                    {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="h-8 w-8 flex-shrink-0">
-                      <img className="h-8 w-8 rounded-full" src={order.customer.avatar} alt="" />
+                    <div className="h-8 w-8 flex-shrink-0 bg-gray-200 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-gray-600">
+                        {order.shippingAddress.name.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                     <div className="ml-3">
                       <div className={`text-sm font-medium ${
                         theme === 'dark' ? 'text-white' : 'text-gray-900'
                       }`}>
-                        {order.customer.name}
+                        {order.shippingAddress.name}
                       </div>
                       <div className={`text-xs ${
                         theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
                       }`}>
-                        {order.customer.email}
+                        {order.shippingAddress.phone}
                       </div>
                     </div>
                   </div>
@@ -227,7 +199,7 @@ const OrderTable = () => {
                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${
                   theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
                 }`}>
-                  {new Date(order.date).toLocaleDateString()}
+                  {new Date(order.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Badge variant={getStatusBadgeVariant(order.status)}>
@@ -235,14 +207,14 @@ const OrderTable = () => {
                   </Badge>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus)}>
-                    {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                  <Badge variant={getPaymentStatusBadgeVariant(order.payment.status)}>
+                    {order.payment.status.charAt(0).toUpperCase() + order.payment.status.slice(1)}
                   </Badge>
                 </td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
                   theme === 'dark' ? 'text-white' : 'text-gray-900'
                 }`}>
-                  {order.total}
+                  ₹{order.total.toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Button 
@@ -272,7 +244,7 @@ const OrderTable = () => {
           <span className={`text-sm ${
             theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
           } sm:ml-4`}>
-            Total Amount: <span className="font-medium">${totalAmount.toFixed(2)}</span>
+            Total Amount: <span className="font-medium">₹{totalAmount.toFixed(2)}</span>
           </span>
         </div>
         <div className="flex space-x-1">

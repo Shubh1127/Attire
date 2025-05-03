@@ -32,6 +32,8 @@ function App() {
           <Route path='customers' element={<Customers />} />
           <Route path='inventory' element={<Inventory />} />
         </Route>
+        <Route path='*' element={<h1 className='text-center my-[48vh] text-4xl'>404 Not Found</h1>} />
+
       </Routes>
     </div>
   );

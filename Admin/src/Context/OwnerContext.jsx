@@ -256,11 +256,47 @@ export const OwnerProvider = ({ children }) => {
       throw error;
     }
   };
+
+  const fetchOrders = async (status = '', page = 1, limit = 10) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/order/getorders`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        params: {
+          status, // Optional: Filter orders by status (e.g., "pending", "completed")
+          page,   // Optional: Specify the page number for pagination
+          limit,  // Optional: Specify the number of orders per page
+        },
+      });
+      console.log("Orders:", response.data); // Log the fetched orders
+      return response.data; // Return the full response (orders, totalPages, currentPage)
+    } catch (error) {
+      console.error("Error fetching orders:", error.response?.data?.message || error.message);
+      throw error;
+    }
+  };
+  const fetchBuyerDetails = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/order/buyers-with-orders`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return response.data.buyers; // Return the list of buyers with their details
+    } catch (error) {
+      console.error("Error fetching buyer details:", error.response?.data?.message || error.message);
+      throw error;
+    }
+  };
+  
   return (
     <OwnerContext.Provider
       value={{
         owner,
         loading,
+        fetchOrders,
+        fetchBuyerDetails,
         registerWithEmail,
         registerWithGoogle,
         loginWithEmail,

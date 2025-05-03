@@ -4,11 +4,11 @@ import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useOwner } from "@/Context/OwnerContext";
-import { ThemeContext } from "@/Context/ThemeContext"; // Import ThemeContext
+import { ThemeContext } from "@/Context/ThemeContext";
 
 const Inventory = () => {
   const { fetchProducts, deleteProduct, editProduct } = useOwner();
-  const { theme } = useContext(ThemeContext); // Access theme from ThemeContext
+  const { theme } = useContext(ThemeContext);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -139,28 +139,28 @@ const Inventory = () => {
   };
 
   return (
-    <div className={theme === 'dark' ? 'space-y-6 bg-gray-800 text-white' : 'space-y-6 bg-gray-50 text-gray-900'}>
-      <div>
-        <h1 className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+    <div className={`space-y-6 ${theme === 'dark' ? 'bg-gray-800 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
+      <div className="px-4 sm:px-6 lg:px-4">
+        <h1 className={`text-2xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
           Inventory Management
         </h1>
-        <p className={theme === 'dark' ? 'mt-1 text-sm text-gray-400' : 'mt-1 text-sm text-gray-500'}>
+        <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
           Track stock levels, manage inventory, and monitor product availability
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-1">
+        <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''}>
           <div className="p-6">
             <div className="flex items-center">
               <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-blue-900' : 'bg-blue-50'}`}>
                 <Package className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className={theme === 'dark' ? 'text-sm font-medium text-gray-400' : 'text-sm font-medium text-gray-600'}>
+                <p className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                   Total Items
                 </p>
-                <p className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+                <p className={`text-2xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   {stats.totalItems}
                 </p>
               </div>
@@ -168,17 +168,17 @@ const Inventory = () => {
           </div>
         </Card>
 
-        <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
+        <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''}>
           <div className="p-6">
             <div className="flex items-center">
               <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-amber-900' : 'bg-amber-50'}`}>
                 <AlertTriangle className="h-6 w-6 text-amber-600" />
               </div>
               <div className="ml-4">
-                <p className={theme === 'dark' ? 'text-sm font-medium text-gray-400' : 'text-sm font-medium text-gray-600'}>
+                <p className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                   Low Stock Items
                 </p>
-                <p className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+                <p className={`text-2xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   {stats.lowStock}
                 </p>
               </div>
@@ -186,17 +186,17 @@ const Inventory = () => {
           </div>
         </Card>
 
-        <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
+        <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''}>
           <div className="p-6">
             <div className="flex items-center">
               <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-red-900' : 'bg-red-50'}`}>
                 <TrendingDown className="h-6 w-6 text-red-600" />
               </div>
               <div className="ml-4">
-                <p className={theme === 'dark' ? 'text-sm font-medium text-gray-400' : 'text-sm font-medium text-gray-600'}>
+                <p className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                   Out of Stock
                 </p>
-                <p className={theme === 'dark' ? 'text-2xl font-semibold text-white' : 'text-2xl font-semibold text-gray-900'}>
+                <p className={`text-2xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   {stats.outOfStock}
                 </p>
               </div>
@@ -205,24 +205,32 @@ const Inventory = () => {
         </Card>
       </div>
 
-      <Card>
+      <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''}>
         <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle>Inventory Items</CardTitle>
+          <CardTitle className={theme === 'dark' ? 'text-white' : ''}>Inventory Items</CardTitle>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-gray-400" />
+                <Search size={16} className={theme === 'dark' ? 'text-gray-400' : 'text-gray-400'} />
               </div>
               <input
                 type="text"
                 placeholder="Search items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                className={`pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:outline-none sm:text-sm ${
+                  theme === 'dark' 
+                    ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500' 
+                    : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+                }`}
               />
             </div>
             <select
-              className="rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-gray-500 focus:outline-none focus:ring-gray-500"
+              className={`rounded-md py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+                  : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+              }`}
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
@@ -232,7 +240,11 @@ const Inventory = () => {
               ))}
             </select>
             <select
-              className="rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-gray-500 focus:outline-none focus:ring-gray-500"
+              className={`rounded-md py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 ${
+                theme === 'dark'
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+                  : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+              }`}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -242,52 +254,69 @@ const Inventory = () => {
               <option value="out-of-stock">Out of Stock</option>
             </select>
             <Button 
-              variant="secondary" 
+              variant={theme === 'dark' ? 'secondary' : 'outline'}
               size="sm"
-              icon={<Download size={16} />}
+              className={theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : ''}
             >
+              <Download size={16} className="mr-2" />
               Export
             </Button>
           </div>
         </CardHeader>
         
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y">
+            <thead className={theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   <div className="flex items-center">
                     Product
                     <ArrowUpDown size={14} className="ml-1" />
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Category
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Stock Level
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Status
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Price
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Last Updated
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className={`divide-y ${
+              theme === 'dark' ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'
+            }`}>
               {filteredItems.map((item) => {
                 const status = getStatus(item.quantity);
                 const isEditing = editingProduct === item._id;
                 
                 return (
-                  <tr key={item._id} className="hover:bg-gray-50">
+                  <tr key={item._id} className={theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0">
@@ -300,12 +329,24 @@ const Inventory = () => {
                               name="name"
                               value={editFormData.name}
                               onChange={handleEditChange}
-                              className="block w-full border-gray-300 rounded-md shadow-sm py-1 px-2 focus:ring-gray-500 focus:border-gray-500 text-sm"
+                              className={`block w-full rounded-md shadow-sm py-1 px-2 focus:ring-2 focus:outline-none text-sm ${
+                                theme === 'dark'
+                                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+                                  : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+                              }`}
                             />
                           ) : (
                             <>
-                              <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                              <div className="text-sm text-gray-500">ID: {item._id}</div>
+                              <div className={`text-sm font-medium ${
+                                theme === 'dark' ? 'text-white' : 'text-gray-900'
+                              }`}>
+                                {item.name}
+                              </div>
+                              <div className={`text-sm ${
+                                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                              }`}>
+                                ID: {item._id}
+                              </div>
                             </>
                           )}
                         </div>
@@ -321,13 +362,25 @@ const Inventory = () => {
                           name="quantity"
                           value={editFormData.quantity}
                           onChange={handleEditChange}
-                          className="block w-full border-gray-300 rounded-md shadow-sm py-1 px-2 focus:ring-gray-500 focus:border-gray-500 text-sm"
+                          className={`block w-full rounded-md shadow-sm py-1 px-2 focus:ring-2 focus:outline-none text-sm ${
+                            theme === 'dark'
+                              ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+                              : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+                          }`}
                           min="0"
                         />
                       ) : (
                         <>
-                          <div className="text-sm text-gray-900">{item.quantity} units</div>
-                          <div className="text-xs text-gray-500">Sizes: {item.sizes.join(', ')}</div>
+                          <div className={`text-sm ${
+                            theme === 'dark' ? 'text-white' : 'text-gray-900'
+                          }`}>
+                            {item.quantity} units
+                          </div>
+                          <div className={`text-xs ${
+                            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
+                            Sizes: {item.sizes.join(', ')}
+                          </div>
                         </>
                       )}
                     </td>
@@ -351,30 +404,42 @@ const Inventory = () => {
                           name="price"
                           value={editFormData.price}
                           onChange={handleEditChange}
-                          className="block w-full border-gray-300 rounded-md shadow-sm py-1 px-2 focus:ring-gray-500 focus:border-gray-500 text-sm"
+                          className={`block w-full rounded-md shadow-sm py-1 px-2 focus:ring-2 focus:outline-none text-sm ${
+                            theme === 'dark'
+                              ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500 focus:border-gray-500'
+                              : 'border-gray-300 focus:ring-gray-500 focus:border-gray-500'
+                          }`}
                           min="0"
                           step="0.01"
                         />
                       ) : (
-                        <div className="text-sm text-gray-900">${item.price.toFixed(2)}</div>
+                        <div className={`text-sm ${
+                          theme === 'dark' ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          ${item.price.toFixed(2)}
+                        </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
                       {new Date(item.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {isEditing ? (
                         <div className="flex space-x-2">
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant={theme === 'dark' ? 'secondary' : 'outline'}
+                            className={theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : ''}
                             onClick={() => handleEditSubmit(item._id)}
                           >
                             Save
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant={theme === 'dark' ? 'secondary' : 'outline'}
+                            className={theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : ''}
                             onClick={handleCancelEdit}
                           >
                             Cancel
@@ -384,14 +449,16 @@ const Inventory = () => {
                         <div className="flex space-x-2">
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant={theme === 'dark' ? 'secondary' : 'outline'}
+                            className={theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : ''}
                             onClick={() => handleEditClick(item)}
                           >
                             <Edit size={16} />
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant={theme === 'dark' ? 'secondary' : 'outline'}
+                            className={theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : ''}
                             onClick={() => handleDeleteProduct(item)}
                           >
                             <Trash2 size={16} />
@@ -406,16 +473,29 @@ const Inventory = () => {
           </table>
         </div>
         
-        <CardFooter className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+        <CardFooter className={`flex items-center justify-between ${
+          theme === 'dark' ? 'bg-gray-800 border-t border-gray-700' : ''
+        }`}>
+          <p className={`text-sm ${
+            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          }`}>
             Showing <span className="font-medium">{filteredItems.length}</span> of{' '}
             <span className="font-medium">{products.length}</span> items
           </p>
           <div className="flex space-x-1">
-            <Button variant="outline" size="sm" disabled>
+            <Button 
+              variant={theme === 'dark' ? 'secondary' : 'outline'} 
+              size="sm"
+              className={theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : ''}
+              disabled
+            >
               Previous
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={theme === 'dark' ? 'secondary' : 'outline'} 
+              size="sm"
+              className={theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : ''}
+            >
               Next
             </Button>
           </div>

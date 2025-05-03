@@ -1,17 +1,55 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import OrderTable from '../Dashboard/Orders/OrderTable';
 import { Card } from "@/components/ui/card";
 import { DollarSign, Package, Clock, CheckCircle } from 'lucide-react';
-import { ThemeContext } from "@/Context/ThemeContext"; // Adjust path as needed
+import { ThemeContext } from "@/Context/ThemeContext";
+import { useOwner } from "../Context/OwnerContext";
 
 const Orders = () => {
   const { theme } = useContext(ThemeContext);
+  const { fetchOrders } = useOwner();
+  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalAmount: 0,
+    pendingOrders: 0,
+    completedOrders: 0
+  });
+
+  useEffect(() => {
+    const getOrders = async () => {
+      try {
+        const { orders } = await fetchOrders('', 1, 10);
+        setOrders(orders);
+        
+        // Calculate statistics
+        const totalOrders = orders.length;
+        const totalAmount = orders.reduce((sum, order) => sum + order.total, 0);
+        const pendingOrders = orders.filter(order => 
+          ['confirmed', 'processing'].includes(order.status)
+        ).length;
+        const completedOrders = orders.filter(order => 
+          order.status === 'delivered' && order.payment.status === 'completed'
+        ).length;
+
+        setStats({
+          totalOrders,
+          totalAmount,
+          pendingOrders,
+          completedOrders
+        });
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+    getOrders();
+  }, []);
 
   const orderStats = {
     total: {
       label: 'Total Orders',
-      value: '$48,574.23',
-      count: '1,482',
+      value: stats.totalOrders,
+      count: `₹${stats.totalAmount.toFixed(2)}`,
       icon: <DollarSign className="h-5 w-5" />,
       light: {
         iconColor: 'text-blue-600',
@@ -24,8 +62,8 @@ const Orders = () => {
     },
     pending: {
       label: 'Pending Orders',
-      value: '23',
-      count: '$4,320.50',
+      value: stats.pendingOrders,
+      count: 'Processing',
       icon: <Clock className="h-5 w-5" />,
       light: {
         iconColor: 'text-amber-600',
@@ -37,9 +75,9 @@ const Orders = () => {
       }
     },
     processing: {
-      label: 'Processing',
-      value: '45',
-      count: '$8,450.75',
+      label: 'Shipped Orders',
+      value: orders.filter(o => o.status === 'shipped').length,
+      count: 'In Transit',
       icon: <Package className="h-5 w-5" />,
       light: {
         iconColor: 'text-purple-600',
@@ -51,9 +89,9 @@ const Orders = () => {
       }
     },
     completed: {
-      label: 'Completed',
-      value: '1,414',
-      count: '$35,803.98',
+      label: 'Completed Orders',
+      value: stats.completedOrders,
+      count: 'Delivered',
       icon: <CheckCircle className="h-5 w-5" />,
       light: {
         iconColor: 'text-green-600',
@@ -121,7 +159,7 @@ const Orders = () => {
         })}
       </div>
       
-      <OrderTable />
+      <OrderTable orders={orders} />
     </div>
   );
 };

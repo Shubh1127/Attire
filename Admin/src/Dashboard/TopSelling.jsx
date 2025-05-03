@@ -1,58 +1,54 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge"; // Adjust the path based on the actual location
+import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { ThemeContext } from "../Context/ThemeContext"; // Import ThemeContext
-
-const products = [
-  {
-    id: 1,
-    name: 'Classic White T-Shirt',
-    category: 'Men',
-    price: '$29.99',
-    image: 'https://images.pexels.com/photos/5384423/pexels-photo-5384423.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    sold: 278,
-    stock: 23,
-    trend: 'up',
-    percentage: '12%'
-  },
-  {
-    id: 2,
-    name: 'Black Slim Dress',
-    category: 'Women',
-    price: '$89.99',
-    image: 'https://images.pexels.com/photos/7679720/pexels-photo-7679720.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    sold: 214,
-    stock: 15,
-    trend: 'up',
-    percentage: '8%'
-  },
-  {
-    id: 3,
-    name: 'Denim Jacket',
-    category: 'Men',
-    price: '$125.00',
-    image: 'https://images.pexels.com/photos/3651597/pexels-photo-3651597.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    sold: 195,
-    stock: 8,
-    trend: 'down',
-    percentage: '3%'
-  },
-  {
-    id: 4,
-    name: 'Kids Summer Set',
-    category: 'Kids',
-    price: '$45.00',
-    image: 'https://images.pexels.com/photos/6157052/pexels-photo-6157052.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    sold: 176,
-    stock: 32,
-    trend: 'up',
-    percentage: '5%'
-  },
-];
+import { ThemeContext } from "../Context/ThemeContext";
+import { useOwner } from "../Context/OwnerContext";
 
 const TopSellingProducts = () => {
-  const { theme } = useContext(ThemeContext); // Access theme from ThemeContext
+  const { theme } = useContext(ThemeContext);
+  const [products, setProducts] = useState([]);
+  const [soldProducts, setSoldProducts] = useState([]);
+  const { fetchProducts, fetchOrders } = useOwner();
+
+  useEffect(() => {
+    const getProductsAndOrders = async () => {
+      try {
+        // Fetch products
+        const fetchedProducts = await fetchProducts();
+
+        // Fetch orders
+        const { orders } = await fetchOrders("", 1, 100); // Fetch up to 100 orders
+
+        // Create a map of product IDs and their sold quantities
+        const soldMap = {};
+        orders.forEach(order => {
+          order.items.forEach(item => {
+            if (soldMap[item.productId]) {
+              soldMap[item.productId] += item.quantity;
+            } else {
+              soldMap[item.productId] = item.quantity;
+            }
+          });
+        });
+
+        // Filter products that are sold and add their sold quantities
+        const filteredProducts = fetchedProducts
+          .filter(product => soldMap[product.id])
+          .map(product => ({
+            ...product,
+            sold: soldMap[product.id], // Add the sold quantity to the product
+          }));
+
+        setProducts(fetchedProducts);
+        setSoldProducts(filteredProducts);
+      } catch (error) {
+        console.error("Error fetching products or orders:", error);
+      }
+    };
+
+    getProductsAndOrders();
+  }, [fetchProducts, fetchOrders]);
 
   return (
     <Card className={theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
@@ -63,7 +59,7 @@ const TopSellingProducts = () => {
       </CardHeader>
       <CardContent className="p-0">
         <ul className={theme === 'dark' ? 'divide-y divide-gray-700' : 'divide-y divide-gray-200'}>
-          {products.map((product) => (
+          {soldProducts.map((product) => (
             <li
               key={product.id}
               className={`p-4 ${
@@ -77,7 +73,7 @@ const TopSellingProducts = () => {
                   }`}
                 >
                   <img
-                    src={product.image}
+                    src={product.photo[0]}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -110,7 +106,7 @@ const TopSellingProducts = () => {
                     >
                       {product.sold} sold
                     </span>
-                    {product.trend === 'up' ? (
+                    {product.sold > 0 ? (
                       <TrendingUp size={16} className="text-green-500" />
                     ) : (
                       <TrendingDown size={16} className="text-red-500" />
@@ -121,7 +117,7 @@ const TopSellingProducts = () => {
                       theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
                     }`}
                   >
-                    {product.stock} in stock
+                    {product.quantity} in stock
                   </p>
                 </div>
               </div>

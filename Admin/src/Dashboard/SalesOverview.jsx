@@ -52,21 +52,49 @@ const StatCard = ({ title, value, change, changeType, icon, iconBg }) => {
 
 const SalesOverview = () => {
   const { theme } = useContext(ThemeContext);
-  const { fetchTotalProducts } = useOwner();
-  const [totalProducts, setTotalProducts] = useState(0);
-
+  const { fetchOrders,fetchBuyerDetails ,fetchProducts} = useOwner(); // Assuming you have a function to fetch orders
+  const [orders, setOrders] = useState([]);
+  const [buyers, setBuyers] = useState([]);
+  const [products, setProducts] = useState([]);
   useEffect(() => {
-    const getTotalProducts = async () => {
+    const getOrders = async () => {
       try {
-        const total = await fetchTotalProducts();
-        setTotalProducts(total);
+        const { orders } = await fetchOrders("", 1, 10);
+        setOrders(orders);
       } catch (error) {
-        console.error("Error fetching total products:", error);
+        console.error("Error fetching orders:", error);
       }
     };
+    getOrders();
+  }, []);
 
-    getTotalProducts();
-  }, [fetchTotalProducts]);
+    
+  
+    useEffect(() => {
+      const getBuyers = async () => {
+        try {
+          const buyerDetails = await fetchBuyerDetails();
+          setBuyers(buyerDetails);
+        } catch (error) {
+          console.error("Error fetching buyer details:", error);
+        }
+      };
+      getBuyers();
+    }, []);
+
+    useEffect(() => {
+        const getProducts = async () => {
+          try {
+            const fetchedProducts = await fetchProducts();
+            setProducts(fetchedProducts);
+          } catch (error) {
+            console.error("Error fetching products:", error);
+          }
+        };
+    
+        getProducts();
+      }, []);
+  
 
   // Theme-aware icon background generator
   const getIconBg = (baseColor) => 
@@ -84,23 +112,23 @@ const SalesOverview = () => {
       />
       <StatCard
         title="Total Orders"
-        value="1,482"
-        change="8.2%"
+        value={orders.length}
+        change="0%"
         changeType="positive"
         icon={<ShoppingBag size={20} className="text-blue-600" />}
         iconBg={getIconBg('blue')}
       />
       <StatCard
         title="New Customers"
-        value="312"
-        change="3.1%"
+        value={buyers.length}
+        change="0%"
         changeType="negative"
         icon={<Users size={20} className="text-purple-600" />}
         iconBg={getIconBg('purple')}
       />
       <StatCard
         title="Total Products"
-        value={totalProducts}
+        value={products.length}
         change="5.4%"
         changeType="positive"
         icon={<TrendingUp size={20} className="text-amber-600" />}
