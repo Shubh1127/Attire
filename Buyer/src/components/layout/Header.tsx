@@ -21,7 +21,6 @@ const Header = () => {
       const token = localStorage.getItem('token');
       const { data: session } = await supabase.auth.getSession();
       const supabaseUser = session?.session?.user;
-
       if (token || supabaseUser) {
         setIsAuthenticated(true);
       } else {

@@ -143,7 +143,7 @@ const CheckoutPage: React.FC = () => {
       // 3. Set up Razorpay options
       const options = {
         key: paymentData.key,
-        amount: paymentData.order.amount.toString(), // Ensure amount is string
+        amount: paymentData.order.amount.toString(),
         currency: paymentData.order.currency,
         order_id: paymentData.order.id,
         name: "Your Store Name",
