@@ -30,7 +30,7 @@ const Home = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <ShoppingBag className="h-8 w-8 text-gray-900" />
-              <span className="ml-2 text-xl font-semibold text-gray-900">ATTIRE</span>
+              <span className="ml-2 text-xl font-semibold text-gray-900">DS KadianBoutique</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/auth">
