@@ -285,7 +285,7 @@ const AddProduct = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="price" className={labelStyles}>
-                  Price ($)
+                  Price (₹)
                 </label>
                 <input
                   type="number"
