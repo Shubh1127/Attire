@@ -208,15 +208,27 @@ const initiateRazorpayPayment = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;
+    const ownerId = req.params.ownerId; // Assuming ownerId is passed as a route parameter
 
-    const query = {};
+    // First, find all product IDs that belong to this owner
+    const ownerProducts = await ProductModel.find({ OwnerId: ownerId }, '_id');
+    const ownerProductIds = ownerProducts.map(product => product._id);
+
+    // Build the query to find orders that contain these products
+    const query = {
+      'items.product_id': { $in: ownerProductIds }
+    };
+    
     if (status) {
       query.status = status;
     }
 
+    // Find orders with pagination
     const orders = await Order.find(query)
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .populate('buyer_id', 'name email') // Optional: populate buyer info
+      .populate('items.product_id', 'name photo'); // Optional: populate product info
 
     const totalOrders = await Order.countDocuments(query);
 
@@ -235,7 +247,6 @@ const getAllOrders = async (req, res) => {
     });
   }
 };
-
 // Get orders for a specific buyer
 const getBuyerOrders = async (req, res) => {
   try {

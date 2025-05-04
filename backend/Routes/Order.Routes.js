@@ -8,7 +8,7 @@ router.post('/placeorder', authMiddleware, orderController.createOrder);
 router.get('/buyer/:buyer_id', authMiddleware, orderController.getBuyerOrders);
 
 // ⚠️ Move static routes above dynamic :orderId
-router.get('/getorders', authMiddleware, orderController.getAllOrders);
+router.get('/orders/:ownerId', orderController.getAllOrders);
 router.get("/buyers-with-orders", authMiddleware, orderController.fetchAllBuyersWithOrders);
 router.put('/:orderId/status', authMiddleware, orderController.updateOrderStatus);
 router.get('/analytics/sales', authMiddleware, orderController.getSalesAnalytics);

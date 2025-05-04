@@ -35,7 +35,7 @@ const ProductSchema = new mongoose.Schema({
     sizes: {
         type: [String],
         default: [],
-        enum: ['xs', 's', 'm', 'l', 'xl', 'xxl']
+        enum: ['xs', 's', 'm', 'l', 'xl', 'xxl', 'one-size']
     },
     colors: {
         type: [String],
