@@ -269,7 +269,7 @@ export const OwnerProvider = ({ children }) => {
           limit,  // Optional: Specify the number of orders per page
         },
       });
-      console.log("Orders:", response.data); // Log the fetched orders
+      // console.log("Orders:", response.data); // Log the fetched orders
       return response.data; // Return the full response (orders, totalPages, currentPage)
     } catch (error) {
       console.error("Error fetching orders:", error.response?.data?.message || error.message);
