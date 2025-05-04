@@ -60,7 +60,7 @@ export default function AuthTabs() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <h1 className="text-2xl flex gap-1 font-bold text-gray-900">
             <ShoppingBag className="h-8 w-8 text-gray-900" />
-            ATTIRE
+            DS KadianBoutique
           </h1>
         </div>
       </header>
