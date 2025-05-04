@@ -59,7 +59,7 @@ const Sidebar = () => {
                 theme === "dark" ? "text-white" : "text-gray-800"
               }`}
             >
-              ATTIRE
+              DS <br/>KadianBoutique
             </div>
           )}
           <button
