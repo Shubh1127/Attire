@@ -32,6 +32,25 @@ const colors = [
   { id: "purple", name: "Purple", hex: "#800080" },
   { id: "pink", name: "Pink", hex: "#FFC0CB" },
   { id: "brown", name: "Brown", hex: "#A52A2A" },
+  { id: "orange", name: "Orange", hex: "#FFA500" },
+  { id: "teal", name: "Teal", hex: "#008080" },
+  { id: "navy", name: "Navy", hex: "#000080" },
+  { id: "maroon", name: "Maroon", hex: "#800000" },
+  { id: "lime", name: "Lime", hex: "#00FF00" },
+  { id: "olive", name: "Olive", hex: "#808000" },
+  { id: "silver", name: "Silver", hex: "#C0C0C0" },
+  { id: "gold", name: "Gold", hex: "#FFD700" },
+  { id: "cyan", name: "Cyan", hex: "#00FFFF" },
+  { id: "magenta", name: "Magenta", hex: "#FF00FF" },
+  { id: "indigo", name: "Indigo", hex: "#4B0082" },
+  { id: "violet", name: "Violet", hex: "#EE82EE" },
+  { id: "coral", name: "Coral", hex: "#FF7F50" },
+  { id: "salmon", name: "Salmon", hex: "#FA8072" },
+  { id: "khaki", name: "Khaki", hex: "#F0E68C" },
+  { id: "plum", name: "Plum", hex: "#DDA0DD" },
+  { id: "orchid", name: "Orchid", hex: "#DA70D6" },
+  { id: "lavender", name: "Lavender", hex: "#E6E6FA" },
+
 ];
 
 const AddProduct = () => {
