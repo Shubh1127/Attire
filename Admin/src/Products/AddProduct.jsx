@@ -18,7 +18,7 @@ const sizes = [
   { id: "l", name: "L" },
   { id: "xl", name: "XL" },
   { id: "xxl", name: "XXL" },
-  {id: "one-size", name: "One Size" },
+  {id: "one-size", name: "one-size" },
 ];
 
 const colors = [
