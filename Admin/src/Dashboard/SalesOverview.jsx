@@ -104,8 +104,8 @@ const SalesOverview = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
         title="Total Sales"
-        value="$24,780"
-        change="12.5%"
+        value="0"
+        change="0%"
         changeType="positive"
         icon={<DollarSign size={20} className="text-green-600" />}
         iconBg={getIconBg('green')}
