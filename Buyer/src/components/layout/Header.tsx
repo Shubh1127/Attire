@@ -72,7 +72,7 @@ const Header = () => {
             to="/"
             className="text-2xl font-bold text-navy-800 dark:text-white"
           >
-            Attire
+            DS kadianBoutique
           </Link>
 
           {/* Desktop Navigation */}
