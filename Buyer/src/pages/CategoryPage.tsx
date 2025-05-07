@@ -31,7 +31,7 @@ const CategoryPage = () => {
 
   // Filter products by category first
   const categoryProducts = allProducts.filter((product) =>
-    category ? product.category === category || product.mainCategory === category : true
+    category ? product.category === category : true
   );
 
   // Then apply other filters
