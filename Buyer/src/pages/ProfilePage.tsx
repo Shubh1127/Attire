@@ -42,7 +42,7 @@ const ProfilePage: React.FC = () => {
 
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     const fetchProfile = async () => {
       // Check if the user is logged in with Supabase
@@ -77,7 +77,23 @@ const ProfilePage: React.FC = () => {
     };
 
     fetchProfile();
-  }, [buyer, getProfile]);
+  }, []);
+
+
+  useEffect(() => {
+      const checkAuth = async () => {
+        const token = localStorage.getItem('token');
+        const { data: session } = await supabase.auth.getSession();
+        const supabaseUser = session?.session?.user;
+        if (token || supabaseUser) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      };
+  
+      checkAuth();
+    }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -194,7 +210,7 @@ const ProfilePage: React.FC = () => {
   if (!buyer) {
     return (
       <div className={`min-h-screen pt-24 pb-16 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="container mx-auto px-4">Loading...</div>
+        <button className=' '>Login to continue</button>
       </div>
     );
   }
