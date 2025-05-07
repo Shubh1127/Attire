@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, ShoppingBag, Heart, Clock, Truck, RotateCcw } from 'lucide-react';
 import { useProductStore } from '../store/productStore';
@@ -7,6 +7,7 @@ import ProductGrid from '../components/product/ProductGrid';
 import { formatPrice } from '../lib/utils';
 import { useBuyerContext } from '../Context/BuyerContext';
 import { useTheme } from '../Context/ThemeContext';
+import supabase from '../Auth/SupabaseClient';
 
 
 const ProductDetailPage: React.FC = () => {
@@ -24,6 +25,22 @@ const ProductDetailPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      const { data: session } = await supabase.auth.getSession();
+      const supabaseUser = session?.session?.user;
+      if (token || supabaseUser) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -57,6 +74,8 @@ const ProductDetailPage: React.FC = () => {
     setCurrentImageIndex(index);
   };
 
+   
+
   if (!product) {
     return (
       <div className={`min-h-screen pt-24 pb-16 flex items-center justify-center ${
@@ -84,9 +103,9 @@ const ProductDetailPage: React.FC = () => {
       setError('Please select a color');
       return;
     }
-    const buyer = localStorage.getItem('buyer');
-    if(!buyer){
-      navigate('/signup');
+    if(isAuthenticated === false){
+      setError('Please login to add items to your cart');
+      return;
     }
     addToCart(product._id, quantity, selectedSize, selectedColor); // Pass size and color
     if (error) setError(null);
@@ -98,8 +117,16 @@ const ProductDetailPage: React.FC = () => {
   };
   return (
     <div className={`min-h-screen pt-24 pb-16 ${
+     
       theme === 'dark' ? 'bg-navy-900' : 'bg-white'
     }`}>
+      {/* {error && (
+  <p className={`text-sm mb-4 ${
+    theme === 'dark' ? 'text-red-400' : 'text-red-600'
+  }`}>
+    {error}
+  </p>
+)} */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* Product Images */}
