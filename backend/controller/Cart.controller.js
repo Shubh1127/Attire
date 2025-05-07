@@ -4,7 +4,7 @@ const ProductModel = require('../Model/ProductModel');
 const CartModel=require('../Model/CartModel');
 
 module.exports.addToCart = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -60,7 +60,7 @@ module.exports.addToCart = async (req, res) => {
 };
 
 module.exports.getCart = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -103,7 +103,7 @@ module.exports.getCart = async (req, res) => {
   }
 };
 module.exports.updateCart = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -143,7 +143,7 @@ module.exports.updateCart = async (req, res) => {
   }
 };
 module.exports.deleteCart = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
