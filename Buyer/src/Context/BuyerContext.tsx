@@ -527,7 +527,7 @@ export const BuyerProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await axios.put(
-        `${API_URL}/order/${orderId}/cancel`,
+        `${API_URL}/order/cancel/${orderId}`,
         { reason },
         { withCredentials: true }
       );
