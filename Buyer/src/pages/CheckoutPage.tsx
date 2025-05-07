@@ -8,6 +8,7 @@ import { formatPrice, cn } from '../lib/utils';
 import { useTheme } from '../Context/ThemeContext';
 import supabase from '../Auth/SupabaseClient';
 import axios from 'axios';
+import { getCookie } from '../utils/cookies';
 interface Address {
   _id: string;
   title: string;
@@ -56,19 +57,26 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const { data: session } = await supabase.auth.getSession();
+        // Check both cookie token and Supabase session
+        const token = getCookie('token');
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (!token && !session?.session?.user) {
+        if (error) throw error;
+        
+        // If neither exists, redirect to signup
+        if (!token && !session?.user) {
           navigate('/signup');
           return;
         }
         
         setIsAuthenticated(true);
+        
+        // Fetch profile if buyer data or addresses are missing
         if (!buyer || !buyer.addresses?.length) {
           await getProfile();
         }
       } catch (err) {
+        console.error('Authentication error:', err);
         setError('Failed to authenticate');
         navigate('/signup');
       } finally {
@@ -77,8 +85,7 @@ const CheckoutPage: React.FC = () => {
     };
     
     checkAuth();
-  }, [navigate, getProfile, buyer]);
-  console.log('Buyer:', buyer);
+  }, []);
   const selectedAddress = buyer?.addresses?.find((addr: Address) => addr._id === selectedAddressId);
 
   const handlePlaceOrder = async () => {
