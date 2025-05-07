@@ -212,6 +212,12 @@ export const BuyerProvider = ({ children }) => {
       setBuyer(response.data.buyer); // Update the buyer state with the fetched data
       localStorage.setItem("buyer", JSON.stringify(response.data.buyer)); // Update localStorage
     } catch (error) {
+      if(error.response.data.message==='invalid token'){
+        localStorage.removeItem("token");
+        localStorage.removeItem("tokenTimeStamp");
+        setBuyer(null);
+        navigate('/signup')
+      }
       console.error(
         "Error fetching buyer data:",
         error.response?.data?.message || error.message
@@ -233,11 +239,12 @@ export const BuyerProvider = ({ children }) => {
         cart: response.data.cart, // Update the cart in the buyer state
       }));
     } catch (error) {
+
       console.error(
         "Error adding to cart:",
         error.response?.data?.message || error.message
       );
-      alert("Failed to add item to cart.");
+      
     }
   };
   // Update Buyer Profile

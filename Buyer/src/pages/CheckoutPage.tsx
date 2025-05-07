@@ -122,7 +122,7 @@ const CheckoutPage: React.FC = () => {
       setIsLoading(true);
       
       // 1. First create the order in your database with status 'pending'
-      console.log(buyer.cart[0]._id);
+      // console.log(buyer.cart[0]._id);
       const orderData = {
         items: buyer.cart.map((item: CartItem) => ({
           product_id: item.productId,

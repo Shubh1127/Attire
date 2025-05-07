@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, ShoppingBag, Heart, Clock, Truck, RotateCcw } from 'lucide-react';
 import { useProductStore } from '../store/productStore';
-import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
 import ProductGrid from '../components/product/ProductGrid';
 import { formatPrice } from '../lib/utils';
 import { useBuyerContext } from '../Context/BuyerContext';
 import { useTheme } from '../Context/ThemeContext';
+
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +24,6 @@ const ProductDetailPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -39,6 +38,7 @@ const ProductDetailPage: React.FC = () => {
     
     loadProduct();
   }, [id]);
+
 
   if (loading) {
     return (
@@ -74,7 +74,6 @@ const ProductDetailPage: React.FC = () => {
       </div>
     );
   }
-  
   const handleAddToCart = () => {
     if (!selectedSize) {
       setError('Please select a size');
@@ -85,17 +84,18 @@ const ProductDetailPage: React.FC = () => {
       setError('Please select a color');
       return;
     }
-  
+    const buyer = localStorage.getItem('buyer');
+    if(!buyer){
+      navigate('/signup');
+    }
     addToCart(product._id, quantity, selectedSize, selectedColor); // Pass size and color
     if (error) setError(null);
   };
-  
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= 10) {
       setQuantity(newQuantity);
     }
   };
-  
   return (
     <div className={`min-h-screen pt-24 pb-16 ${
       theme === 'dark' ? 'bg-navy-900' : 'bg-white'
