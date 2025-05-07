@@ -574,6 +574,22 @@ const fetchAllBuyersWithOrders = async (req, res) => {
   }
 };
 
+module.exports.deleteExpiredOrders = async () => {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    // Find and delete orders with status 'pending' older than 24 hours
+    const result = await Order.deleteMany({
+      status: 'pending',
+      createdAt: { $lt: twentyFourHoursAgo },
+    });
+
+    // console.log(`${result.deletedCount} expired orders deleted.`);
+  } catch (error) {
+    console.error('Error deleting expired orders:', error.message);
+  }
+};
+
 module.exports = {
   fetchAllBuyersWithOrders,
   createOrder,
