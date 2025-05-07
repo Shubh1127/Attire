@@ -6,6 +6,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useTheme } from '../../Context/ThemeContext';
 import { useBuyerContext } from '../../Context/BuyerContext';
 import supabase from '../../Auth/SupabaseClient';
+import { getCookie } from '../../utils/cookies';
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme();
@@ -16,20 +17,25 @@ const Header = () => {
   const totalItems = useCartStore((state) => state.totalItems());
   const location = useLocation();
   // Check authentication using Supabase and localStorage
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      const { data: session } = await supabase.auth.getSession();
-      const supabaseUser = session?.session?.user;
-      if (token || supabaseUser) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+ useEffect(() => {
+     const checkAuth = async () => {
+       try {
+         // Check both cookie token and Supabase session
+         const token = getCookie('token');
+         const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
+         
+         if (supabaseError) throw supabaseError;
+         
+         // Authenticated if either exists
+         setIsAuthenticated(!!(token || session?.user));
+       } catch (error) {
+         console.error('Auth check error:', error);
+         setIsAuthenticated(false);
+       }
+     };
+ 
+     checkAuth();
+   }, []);
 
   // Check if scrolled for changing header style
   useEffect(() => {

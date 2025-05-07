@@ -5,7 +5,7 @@ import supabase from './Auth/SupabaseClient';
 // Layout Components
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
-
+import { getCookie } from './utils/cookies';
 // Pages
 import HomePage from './pages/HomePage';
 import CategoryPage from './pages/CategoryPage';
@@ -26,8 +26,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Check both localStorage token and Supabase session
-        const token = localStorage.getItem('token');
+        // Check both cookie token and Supabase session
+        const token = getCookie('token');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) throw error;
@@ -56,6 +56,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   // Render children if authenticated
   return <>{children}</>;
 };
+
+
 
 function App() {
   return (

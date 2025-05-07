@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import supabase from "../Auth/SupabaseClient";
 import { useNavigate } from "react-router-dom";
+import { setCookie, getCookie, deleteCookie } from "../utils/cookies"; // You'll need to create this utility
 
 interface OrderItem {
   product_id: string;
@@ -35,6 +36,10 @@ interface Order {
 
 const BuyerContext = createContext();
 const API_URL = import.meta.env.VITE_BACKEND_URL;
+
+// Configure axios to send credentials with every request
+axios.defaults.withCredentials = true;
+
 export const BuyerProvider = ({ children }) => {
   const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
@@ -42,11 +47,11 @@ export const BuyerProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const isTokenExpired = () => {
-    const tokenTimestamp = localStorage.getItem("tokenTimestamp");
+    const tokenTimestamp = getCookie("tokenTimestamp");
     if (!tokenTimestamp) return true;
 
     const now = new Date().getTime();
-    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
     return now - parseInt(tokenTimestamp, 10) > sevenDaysInMs;
   };
 
@@ -54,8 +59,8 @@ export const BuyerProvider = ({ children }) => {
   useEffect(() => {
     const getSession = async () => {
       if (isTokenExpired()) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("tokenTimestamp");
+        deleteCookie("token");
+        deleteCookie("tokenTimestamp");
         localStorage.removeItem("buyer");
         setBuyer(null);
         setLoading(false);
@@ -77,19 +82,20 @@ export const BuyerProvider = ({ children }) => {
   const registerWithEmail = async (name, email, password, phoneNumber) => {
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/buyer/register`,
+        `${API_URL}/buyer/register`,
         {
           name,
           email,
           password,
           phoneNumber,
           provider: "local",
-        }
+        },
+        { withCredentials: true }
       );
 
       setBuyer(response.data.buyer);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
+      setCookie("token", response.data.token, 7);
+      setCookie("tokenTimestamp", new Date().getTime().toString(), 7);
       return response.data.buyer;
     } catch (error) {
       console.error(
@@ -101,13 +107,12 @@ export const BuyerProvider = ({ children }) => {
   };
 
   // Register buyer with Google
-  // Register buyer with Google
   const registerWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin, // 👈 dynamic, wherever frontend is hosted
+          redirectTo: window.location.origin,
         },
       });
       if (error) throw error;
@@ -125,19 +130,17 @@ export const BuyerProvider = ({ children }) => {
       if (user) {
         try {
           const response = await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/buyer/register`,
+            `${API_URL}/buyer/register`,
             {
               name: user.user_metadata.full_name,
               email: user.email,
               provider: "google",
-            }
+            },
+            { withCredentials: true }
           );
 
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem(
-            "tokenTimestamp",
-            new Date().getTime().toString()
-          );
+          setCookie("token", response.data.token, 7);
+          setCookie("tokenTimestamp", new Date().getTime().toString(), 7);
           setBuyer(response.data.buyer);
         } catch (err) {
           console.error(
@@ -155,15 +158,16 @@ export const BuyerProvider = ({ children }) => {
   const loginWithEmail = async (email, password) => {
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/buyer/login`,
+        `${API_URL}/buyer/login`,
         {
           email,
           password,
-        }
+        },
+        { withCredentials: true }
       );
       setBuyer(response.data.buyer);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
+      setCookie("token", response.data.token, 7);
+      setCookie("tokenTimestamp", new Date().getTime().toString(), 7);
       localStorage.setItem("buyer", JSON.stringify(response.data.buyer));
       return response.data.buyer;
     } catch (error) {
@@ -180,14 +184,12 @@ export const BuyerProvider = ({ children }) => {
     try {
       navigate("/"); // Redirect to home page after logout
       await supabase.auth.signOut();
-      localStorage.removeItem("token");
-      localStorage.removeItem("tokenTimestamp");
+      deleteCookie("token");
+      deleteCookie("tokenTimestamp");
       localStorage.removeItem("buyer");
       try {
-        await axios.get(`${import.meta.env.VITE_BACKEND_URL}/buyer/logout`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+        await axios.get(`${API_URL}/buyer/logout`, {
+          withCredentials: true
         });
       } catch (err) {
         console.log(err.message);
@@ -202,21 +204,17 @@ export const BuyerProvider = ({ children }) => {
   const getProfile = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/buyer/profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        `${API_URL}/buyer/profile`,
+        { withCredentials: true }
       );
-      setBuyer(response.data.buyer); // Update the buyer state with the fetched data
-      localStorage.setItem("buyer", JSON.stringify(response.data.buyer)); // Update localStorage
+      setBuyer(response.data.buyer);
+      localStorage.setItem("buyer", JSON.stringify(response.data.buyer));
     } catch (error) {
-      if(error.response.data.message==='invalid token'){
-        localStorage.removeItem("token");
-        localStorage.removeItem("tokenTimeStamp");
+      if(error.response?.data?.message === 'invalid token'){
+        deleteCookie("token");
+        deleteCookie("tokenTimestamp");
         setBuyer(null);
-        navigate('/signup')
+        navigate('/signup');
       }
       console.error(
         "Error fetching buyer data:",
@@ -230,33 +228,30 @@ export const BuyerProvider = ({ children }) => {
       const response = await axios.post(
         `${API_URL}/cart/addToCart`,
         { productId, quantity, size, color },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { withCredentials: true }
       );
       setBuyer((prevBuyer) => ({
         ...prevBuyer,
-        cart: response.data.cart, // Update the cart in the buyer state
+        cart: response.data.cart,
       }));
     } catch (error) {
-
       console.error(
         "Error adding to cart:",
         error.response?.data?.message || error.message
       );
-      
     }
   };
+
   // Update Buyer Profile
   const updateProfile = async (formData) => {
     try {
       setLoading(true);
       const response = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/buyer/updateprofile`,
+        `${API_URL}/buyer/updateprofile`,
         formData,
         {
+          withCredentials: true,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -281,9 +276,7 @@ export const BuyerProvider = ({ children }) => {
       const response = await axios.post(
         `${API_URL}/buyer/addAddress`,
         address,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { withCredentials: true }
       );
       setBuyer(response.data.buyer);
       return response.data.buyer;
@@ -305,9 +298,7 @@ export const BuyerProvider = ({ children }) => {
       const response = await axios.put(
         `${API_URL}/buyer/address/${index}`,
         address,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { withCredentials: true }
       );
       setBuyer(response.data.buyer);
       return response.data.buyer;
@@ -326,9 +317,10 @@ export const BuyerProvider = ({ children }) => {
   const deleteAddress = async (index) => {
     try {
       setLoading(true);
-      const response = await axios.delete(`${API_URL}/buyer/address/${index}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const response = await axios.delete(
+        `${API_URL}/buyer/address/${index}`,
+        { withCredentials: true }
+      );
       setBuyer(response.data.buyer);
       return response.data.buyer;
     } catch (error) {
@@ -349,9 +341,7 @@ export const BuyerProvider = ({ children }) => {
       const response = await axios.put(
         `${API_URL}/buyer/address/default/${index}`,
         {},
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { withCredentials: true }
       );
       setBuyer(response.data.buyer);
       return response.data.buyer;
@@ -372,7 +362,7 @@ export const BuyerProvider = ({ children }) => {
       setLoading(true);
       const response = await axios.get(`${API_URL}/buyer/search`, {
         params: { query },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true
       });
       return response.data;
     } catch (error) {
@@ -389,9 +379,10 @@ export const BuyerProvider = ({ children }) => {
   const fetchAllProducts = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/product/getProducts`
+        `${API_URL}/product/getProducts`,
+        { withCredentials: true }
       );
-      setAllProducts(response.data.products); // Save products in state
+      setAllProducts(response.data.products);
     } catch (error) {
       console.error(
         "Error fetching products:",
@@ -403,24 +394,26 @@ export const BuyerProvider = ({ children }) => {
   const fetchProductById = async (id) => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/product/getProduct/${id}`
+        `${API_URL}/product/getProduct/${id}`,
+        { withCredentials: true }
       );
       return response.data.product;
-    } catch (er) {
+    } catch (error) {
       console.error(
         "Error fetching product by ID:",
         error.response?.data?.message || error.message
       );
     }
   };
+
   const fetchCart = async () => {
     try {
       const response = await axios.get(`${API_URL}/cart/getcart`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true
       });
       setBuyer((prevBuyer) => ({
         ...prevBuyer,
-        cart: response.data.cart, // Update the cart in the buyer state
+        cart: response.data.cart,
       }));
     } catch (error) {
       console.error(
@@ -429,18 +422,17 @@ export const BuyerProvider = ({ children }) => {
       );
     }
   };
+
   const updateCartItem = async (productId, quantity) => {
     try {
       const response = await axios.put(
         `${API_URL}/cart/updatecart`,
         { productId, quantity },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { withCredentials: true }
       );
       setBuyer((prevBuyer) => ({
         ...prevBuyer,
-        cart: response.data.cart, // Update the cart in the buyer state
+        cart: response.data.cart,
       }));
     } catch (error) {
       console.error(
@@ -455,11 +447,11 @@ export const BuyerProvider = ({ children }) => {
     try {
       const response = await axios.delete(`${API_URL}/cart/deletecart`, {
         data: { productId },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true
       });
       setBuyer((prevBuyer) => ({
         ...prevBuyer,
-        cart: response.data.cart, // Update the cart in the buyer state
+        cart: response.data.cart,
       }));
     } catch (error) {
       console.error(
@@ -469,27 +461,20 @@ export const BuyerProvider = ({ children }) => {
       alert("Failed to remove item from cart.");
     }
   };
-  const createOrder = async (orderData: {
-    items: Array<{
-      product_id: string;
-      quantity: number;
-      size?: string;
-      color?: string;
-    }>;
-    shippingAddressId: string; // address ID
-    paymentMethod: 'card' | 'cod';
-  }) => {
+
+  const createOrder = async (orderData) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API_URL}/order/placeorder`, orderData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
+      const response = await axios.post(
+        `${API_URL}/order/placeorder`,
+        orderData,
+        { withCredentials: true }
+      );
       
-      // Update buyer's orders list
       setBuyer(prev => ({
         ...prev,
         orders: [...(prev?.orders || []), response.data.order],
-        cart: [] // Clear cart after successful order
+        cart: []
       }));
       
       return response.data.order;
@@ -501,15 +486,14 @@ export const BuyerProvider = ({ children }) => {
     }
   };
   
-  const getBuyerOrders = async (status?: string) => {
+  const getBuyerOrders = async (status) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/order/buyer/${buyer?._id}`, {
         params: { status },
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        withCredentials: true
       });
       
-      // Update buyer's orders in context
       setBuyer(prev => ({
         ...prev,
         orders: response.data.orders
@@ -524,11 +508,11 @@ export const BuyerProvider = ({ children }) => {
     }
   };
   
-  const getOrderDetails = async (orderId: string) => {
+  const getOrderDetails = async (orderId) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/order/${orderId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        withCredentials: true
       });
       return response.data.order;
     } catch (error) {
@@ -539,16 +523,15 @@ export const BuyerProvider = ({ children }) => {
     }
   };
   
-  const cancelOrder = async (orderId: string, reason?: string) => {
+  const cancelOrder = async (orderId, reason) => {
     try {
       setLoading(true);
       const response = await axios.put(
         `${API_URL}/order/${orderId}/cancel`,
         { reason },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
+        { withCredentials: true }
       );
       
-      // Update the order in buyer's orders list
       setBuyer(prev => ({
         ...prev,
         orders: prev?.orders?.map(order => 
@@ -565,13 +548,13 @@ export const BuyerProvider = ({ children }) => {
     }
   };
   
-  const initiateRazorpayPayment = async (orderId: string) => {
+  const initiateRazorpayPayment = async (orderId) => {
     try {
       setLoading(true);
       const response = await axios.post(
         `${API_URL}/order/payment/create-order`,
-        { orderId }, // Only sending the order ID
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
+        { orderId },
+        { withCredentials: true }
       );
       return response.data;
     } catch (error) {
@@ -581,6 +564,7 @@ export const BuyerProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
   return (
     <BuyerContext.Provider
       value={{

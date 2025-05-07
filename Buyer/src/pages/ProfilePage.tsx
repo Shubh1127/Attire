@@ -4,6 +4,8 @@ import supabase from '../Auth/SupabaseClient';
 import { useTheme } from '../Context/ThemeContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { useNavigate } from 'react-router-dom';
+import { getCookie } from '../utils/cookies';
 
 const ProfilePage: React.FC = () => {
   const {
@@ -16,7 +18,7 @@ const ProfilePage: React.FC = () => {
     deleteAddress,
     setDefaultAddress
   } = useBuyerContext();
-
+  const navigate = useNavigate();
   const { theme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -80,20 +82,25 @@ const ProfilePage: React.FC = () => {
   }, []);
 
 
-  useEffect(() => {
-      const checkAuth = async () => {
-        const token = localStorage.getItem('token');
-        const { data: session } = await supabase.auth.getSession();
-        const supabaseUser = session?.session?.user;
-        if (token || supabaseUser) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      };
-  
-      checkAuth();
-    }, []);
+ useEffect(() => {
+     const checkAuth = async () => {
+       try {
+         // Check both cookie token and Supabase session
+         const token = getCookie('token');
+         const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
+         
+         if (supabaseError) throw supabaseError;
+         
+         // Authenticated if either exists
+         setIsAuthenticated(!!(token || session?.user));
+       } catch (error) {
+         console.error('Auth check error:', error);
+         setIsAuthenticated(false);
+       }
+     };
+ 
+     checkAuth();
+   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -209,8 +216,13 @@ const ProfilePage: React.FC = () => {
 
   if (!buyer) {
     return (
-      <div className={`min-h-screen pt-24 pb-16 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <button className=' '>Login to continue</button>
+      <div className={`min-h-screen pt-24 pb-16 flex items-center justify-center ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <button
+          className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+          onClick={() => navigate('/signup')}
+        >
+          Login to continue
+        </button>
       </div>
     );
   }

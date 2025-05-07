@@ -8,7 +8,7 @@ import { formatPrice } from '../lib/utils';
 import { useBuyerContext } from '../Context/BuyerContext';
 import { useTheme } from '../Context/ThemeContext';
 import supabase from '../Auth/SupabaseClient';
-
+import { getCookie } from '../utils/cookies';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,18 +29,24 @@ const ProductDetailPage: React.FC = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      const { data: session } = await supabase.auth.getSession();
-      const supabaseUser = session?.session?.user;
-      if (token || supabaseUser) {
-        setIsAuthenticated(true);
-      } else {
+      try {
+        // Check both cookie token and Supabase session
+        const token = getCookie('token');
+        const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
+        
+        if (supabaseError) throw supabaseError;
+        
+        // Authenticated if either exists
+        setIsAuthenticated(!!(token || session?.user));
+      } catch (error) {
+        console.error('Auth check error:', error);
         setIsAuthenticated(false);
       }
     };
 
     checkAuth();
   }, []);
+
   useEffect(() => {
     const loadProduct = async () => {
       try {
