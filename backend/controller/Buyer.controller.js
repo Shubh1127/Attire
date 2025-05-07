@@ -65,7 +65,12 @@ module.exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid password' });
     }
     const token = buyer.generateAuthToken();
-    res.cookie('token', token);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     // 
     // .log(buyer._id)
     return res.status(200).json({ token, buyer });
@@ -81,7 +86,7 @@ module.exports.logout = (req, res) => {
 
 module.exports.getProfile = async (req, res) => {
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
+    const token = req.cookies.token;
     if (!token) {
       return res.status(401).json({ message: 'Please login first' });
     }
@@ -107,7 +112,7 @@ module.exports.getProfile = async (req, res) => {
 };
 
 module.exports.updateProfile = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -161,7 +166,7 @@ module.exports.updateProfile = async (req, res) => {
 };
 //address
 module.exports.addAddress = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -186,7 +191,7 @@ module.exports.addAddress = async (req, res) => {
 };
 
 module.exports.updateAddress = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -214,7 +219,7 @@ module.exports.updateAddress = async (req, res) => {
 };
 
 module.exports.deleteAddress = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
@@ -241,7 +246,7 @@ module.exports.deleteAddress = async (req, res) => {
 };
 
 module.exports.setDefaultAddress = async (req, res) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'Please login first' });
   }
