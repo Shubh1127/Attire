@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  // Get token from cookies instead of Authorization header
+  const token = req.cookies.token;
+  
   if (!token) {
     return res.status(401).json({ message: 'Access denied. No token provided.' });
   }
@@ -11,7 +13,9 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(400).json({ message: 'Invalid token.' });
+    // Clear the invalid token cookie
+    res.clearCookie('token');
+    res.status(401).json({ message: 'Invalid token.' });
   }
 };
 
