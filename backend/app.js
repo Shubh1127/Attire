@@ -11,12 +11,12 @@ const OrderRoutes = require('./Routes/Order.Routes.js');
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174","https://attire-buyer.onrender.com","https://attire-admin-2cod.onrender.com"]; // Admin and User panels
+// CORS Configuration
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174","https://attire-buyer.onrender.com","https://attire-admin-2cod.onrender.com"];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -32,14 +32,16 @@ app.use(cookieParser());
 
 ConnectToDb();
 
+// Simple route to test server
 app.get('/', (req, res) => {
-  res.send("hello world");
+  res.send("Server is running");
 });
 
+// Mount routes - ensure these paths are correct
 app.use('/buyer', BuyerRoutes);
-app.use('/Cart', CartRoutes);
+app.use('/cart', CartRoutes);  // Changed to lowercase for consistency
 app.use('/owner', OwnerRoutes);
 app.use('/product', ProductRoutes);
-app.use('/order',OrderRoutes);
+app.use('/order', OrderRoutes);
 
 module.exports = app;
