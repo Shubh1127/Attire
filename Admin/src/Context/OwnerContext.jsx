@@ -2,20 +2,24 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import supabase from "../Auth/supabaseClient";
 import { useNavigate } from "react-router-dom";
+
 const OwnerContext = createContext();
 
 export const OwnerProvider = ({ children }) => {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Configure axios to send credentials with every request
+  axios.defaults.withCredentials = true;
+
   // Helper function to check token expiration
   const isTokenExpired = () => {
-    const tokenTimestamp = localStorage.getItem("tokenTimestamp");
+    const tokenTimestamp = getCookie("tokenTimestamp");
     if (!tokenTimestamp) return true;
 
     const now = new Date().getTime();
-    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
     return now - parseInt(tokenTimestamp, 10) > sevenDaysInMs;
   };
 
@@ -23,8 +27,8 @@ export const OwnerProvider = ({ children }) => {
   useEffect(() => {
     const getSession = async () => {
       if (isTokenExpired()) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("tokenTimestamp");
+        deleteCookie("token");
+        deleteCookie("tokenTimestamp");
         localStorage.removeItem("user");
         setOwner(null);
         setLoading(false);
@@ -42,50 +46,51 @@ export const OwnerProvider = ({ children }) => {
     getSession();
   }, []);
 
-  // Register owner with email and password (MongoDB)
+  // Register owner with email and password
   const registerWithEmail = async (name, email, password) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/owner/register`, {
-        name,
-        email,
-        password,
-        provider: "local",
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/owner/register`,
+        { name, email, password, provider: "local" },
+        { withCredentials: true }
+      );
 
       setOwner(response.data.owner);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
+      setCookie("token", response.data.token, 7);
+      setCookie("tokenTimestamp", new Date().getTime().toString(), 7);
       return response.data.owner;
     } catch (error) {
       console.error("Error registering owner:", error.response?.data?.message || error.message);
       throw error;
     }
   };
+
+  // Handle Google registration
   useEffect(() => {
     const getUser = async () => {
       const session = await supabase.auth.getSession();
       const user = session.data.session?.user;
-  
+
       if (user) {
         try {
-          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/owner/register`, {
-            name: user.user_metadata.full_name,
-            email: user.email,
-            provider: "google",
-          });
-  
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("tokenTimestamp", new Date().getTime().toString());
-          setOwner(response.data.user); // Or .owner depending on your response
+          const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/owner/register`,
+            { name: user.user_metadata.full_name, email: user.email, provider: "google" },
+            { withCredentials: true }
+          );
+
+          setCookie("token", response.data.token, 7);
+          setCookie("tokenTimestamp", new Date().getTime().toString(), 7);
+          setOwner(response.data.user);
         } catch (err) {
           console.error("Backend registration failed:", err.response?.data?.message || err.message);
         }
       }
     };
-  
+
     getUser();
   }, []);
-  
+
   const registerWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -96,17 +101,19 @@ export const OwnerProvider = ({ children }) => {
       console.error("Google sign-in error:", error.message);
     }
   };
-  
 
+  // Login with email
   const loginWithEmail = async (email, password) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/owner/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/owner/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+      
       setOwner(response.data.owner);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("tokenTimestamp", new Date().getTime().toString()); // Save token timestamp
+      setCookie("token", response.data.token, 7);
+      setCookie("tokenTimestamp", new Date().getTime().toString(), 7);
       localStorage.setItem("user", JSON.stringify(response.data.owner));
       return response.data.owner;
     } catch (error) {
@@ -118,16 +125,14 @@ export const OwnerProvider = ({ children }) => {
   // Sign out
   const signOut = async () => {
     try {
-      navigate("/"); // Redirect to home page after logout
+      navigate("/");
       await supabase.auth.signOut();
-      localStorage.removeItem("token");
-      localStorage.removeItem("tokenTimestamp");
+      deleteCookie("token");
+      deleteCookie("tokenTimestamp");
       localStorage.removeItem("user");
       try {
         await axios.get(`${import.meta.env.VITE_BACKEND_URL}/owner/logout`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          withCredentials: true
         });
       } catch (err) {
         console.log(err.message);
@@ -138,17 +143,22 @@ export const OwnerProvider = ({ children }) => {
     }
   };
 
+  // Update profile picture
   const updateProfilePicture = async (file) => {
     try {
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/owner/updateProfilePicture`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/owner/updateProfilePicture`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setOwner((prev) => ({ ...prev, profilePicture: response.data.profilePicture }));
       return response.data.profilePicture;
@@ -158,17 +168,14 @@ export const OwnerProvider = ({ children }) => {
     }
   };
 
+  // Update password
   const updatePassword = async (currentPassword, newPassword) => {
     try {
-      const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/owner/updatePassword`, {
-        currentPassword,
-        newPassword,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
+      const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/owner/updatePassword`,
+        { currentPassword, newPassword },
+        { withCredentials: true }
+      );
       return response.data.message;
     } catch (error) {
       console.error("Error updating password:", error.response?.data?.message || error.message);
@@ -176,30 +183,32 @@ export const OwnerProvider = ({ children }) => {
     }
   };
 
+  // Fetch owner data
   const fetchOwnerData = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/owner/profile`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true
       });
-      setOwner(response.data); // Update the owner state with the fetched data
-      localStorage.setItem("user", JSON.stringify(response.data)); // Update localStorage
+      setOwner(response.data);
+      localStorage.setItem("user", JSON.stringify(response.data));
     } catch (error) {
       console.error("Error fetching owner data:", error.response?.data?.message || error.message);
     }
   };
 
+  // Product management functions
   const addProduct = async (formData) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/product/add`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
-      console.log("Response:", response.data);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/product/add`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error adding product:", error.response?.data?.message || error.message);
@@ -210,11 +219,9 @@ export const OwnerProvider = ({ children }) => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/product/all`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        withCredentials: true
       });
-      return response.data.products; // Return the list of products
+      return response.data.products;
     } catch (error) {
       console.error("Error fetching products:", error.response?.data?.message || error.message);
       throw error;
@@ -226,13 +233,9 @@ export const OwnerProvider = ({ children }) => {
       const response = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/product/edit/${productId}`,
         updates,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        { withCredentials: true }
       );
-      return response.data.product; // Return the updated product
+      return response.data.product;
     } catch (error) {
       console.error("Error editing product:", error.response?.data?.message || error.message);
       throw error;
@@ -244,52 +247,44 @@ export const OwnerProvider = ({ children }) => {
       const response = await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/product/delete/${productId}`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          data: { deleteAllStock, stockToDelete }, // Pass the delete options
+          withCredentials: true,
+          data: { deleteAllStock, stockToDelete },
         }
       );
-      return response.data.message; // Return the success message
+      return response.data.message;
     } catch (error) {
       console.error("Error deleting product:", error.response?.data?.message || error.message);
       throw error;
     }
   };
 
+  // Order management functions
   const fetchOrders = async (status = '', page = 1, limit = 10) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/order/getorders`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        params: {
-          status, // Optional: Filter orders by status (e.g., "pending", "completed")
-          page,   // Optional: Specify the page number for pagination
-          limit,  // Optional: Specify the number of orders per page
-        },
+        withCredentials: true,
+        params: { status, page, limit },
       });
-      // console.log("Orders:", response.data); // Log the fetched orders
-      return response.data; // Return the full response (orders, totalPages, currentPage)
+      return response.data;
     } catch (error) {
       console.error("Error fetching orders:", error.response?.data?.message || error.message);
       throw error;
     }
   };
+
   const fetchBuyerDetails = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/order/buyers-with-orders`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      return response.data.buyers; // Return the list of buyers with their details
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/order/buyers-with-orders`,
+        { withCredentials: true }
+      );
+      return response.data.buyers;
     } catch (error) {
       console.error("Error fetching buyer details:", error.response?.data?.message || error.message);
       throw error;
     }
   };
-  
+
   return (
     <OwnerContext.Provider
       value={{
@@ -315,7 +310,27 @@ export const OwnerProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the OwnerContext
-export const useOwner = () => {
-  return useContext(OwnerContext);
+export const useOwner = () => useContext(OwnerContext);
+
+// Cookie helper functions
+const setCookie = (name, value, days) => {
+  const date = new Date();
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  const expires = "expires=" + date.toUTCString();
+  document.cookie = name + "=" + value + ";" + expires + ";path=/";
+};
+
+const getCookie = (name) => {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+  }
+  return null;
+};
+
+const deleteCookie = (name) => {
+  document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 };
