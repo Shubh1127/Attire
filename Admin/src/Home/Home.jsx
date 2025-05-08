@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { ShoppingBag } from "lucide-react";
 import Footer from "./Footer";
 import  supabase  from "../Auth/supabaseClient"; // Import Supabase client
+import { getCookie } from "../Context/OwnerContext"; // Import cookie utility
 const Home = () => {
   const navigate = useNavigate(); // Initialize useNavigate
 
@@ -12,9 +13,9 @@ const Home = () => {
       const { data: { session } } = await supabase.auth.getSession();
 
       // Check local token (from MongoDB/Express login)
-      const localToken = localStorage.getItem("token");
+      const token = getCookie("token");
 
-      if (session || localToken) {
+      if (session || token) {
         // If logged in via Supabase OR Email login
         navigate("/dashboard");
       }

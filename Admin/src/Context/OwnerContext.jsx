@@ -313,14 +313,14 @@ export const OwnerProvider = ({ children }) => {
 export const useOwner = () => useContext(OwnerContext);
 
 // Cookie helper functions
-const setCookie = (name, value, days) => {
+export const setCookie = (name, value, days) => {
   const date = new Date();
   date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
   const expires = "expires=" + date.toUTCString();
   document.cookie = name + "=" + value + ";" + expires + ";path=/";
 };
 
-const getCookie = (name) => {
+export const getCookie = (name) => {
   const nameEQ = name + "=";
   const ca = document.cookie.split(';');
   for (let i = 0; i < ca.length; i++) {
