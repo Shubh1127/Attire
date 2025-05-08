@@ -211,7 +211,7 @@ const getAllOrders = async (req, res) => {
     const ownerId = req.params.ownerId; // Assuming ownerId is passed as a route parameter
 
     // First, find all product IDs that belong to this owner
-    const ownerProducts = await ProductModel.find({ OwnerId: ownerId }, '_id');
+    const ownerProducts = await Product.find({ OwnerId: ownerId }, '_id');
     const ownerProductIds = ownerProducts.map(product => product._id);
 
     // Build the query to find orders that contain these products
