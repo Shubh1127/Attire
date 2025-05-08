@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  // Get token from cookies instead of Authorization header
-  const token = req.cookies.token;
+  // Try to get token from cookies first, then fallback to header
+  const token = req.cookies.token ;
   
   if (!token) {
     return res.status(401).json({ message: 'Access denied. No token provided.' });
@@ -13,7 +13,6 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    // Clear the invalid token cookie
     res.clearCookie('token');
     res.status(401).json({ message: 'Invalid token.' });
   }
