@@ -22,37 +22,69 @@ const sizes = [
 ];
 
 const colors = [
-  { id: "white", name: "White", hex: "#FFFFFF" },
+  // First row
   { id: "black", name: "Black", hex: "#000000" },
-  { id: "gray", name: "Gray", hex: "#808080" },
-  { id: "red", name: "Red", hex: "#FF0000" },
-  { id: "blue", name: "Blue", hex: "#0000FF" },
-  { id: "green", name: "Green", hex: "#008000" },
-  { id: "yellow", name: "Yellow", hex: "#FFFF00" },
-  { id: "purple", name: "Purple", hex: "#800080" },
-  { id: "pink", name: "Pink", hex: "#FFC0CB" },
-  { id: "brown", name: "Brown", hex: "#A52A2A" },
-  { id: "orange", name: "Orange", hex: "#FFA500" },
-  { id: "teal", name: "Teal", hex: "#008080" },
-  { id: "navy", name: "Navy", hex: "#000080" },
-  { id: "maroon", name: "Maroon", hex: "#800000" },
-  { id: "lime", name: "Lime", hex: "#00FF00" },
-  { id: "olive", name: "Olive", hex: "#808000" },
+  { id: "charcoal", name: "Charcoal", hex: "#36454F" },
+  { id: "grey", name: "Grey", hex: "#808080" },
   { id: "silver", name: "Silver", hex: "#C0C0C0" },
-  { id: "gold", name: "Gold", hex: "#FFD700" },
-  { id: "cyan", name: "Cyan", hex: "#00FFFF" },
-  { id: "magenta", name: "Magenta", hex: "#FF00FF" },
-  { id: "indigo", name: "Indigo", hex: "#4B0082" },
-  { id: "violet", name: "Violet", hex: "#EE82EE" },
-  { id: "coral", name: "Coral", hex: "#FF7F50" },
-  { id: "salmon", name: "Salmon", hex: "#FA8072" },
+  { id: "white", name: "White", hex: "#FFFFFF" },
+  { id: "ivory", name: "Ivory", hex: "#FFFFF0" },
   { id: "khaki", name: "Khaki", hex: "#F0E68C" },
-  { id: "plum", name: "Plum", hex: "#DDA0DD" },
-  { id: "orchid", name: "Orchid", hex: "#DA70D6" },
-  { id: "lavender", name: "Lavender", hex: "#E6E6FA" },
 
+  // Second row
+  { id: "regal-red", name: "Regal Red", hex: "#A91B0D" },
+  { id: "brick-red", name: "Brick Red", hex: "#CB4154" },
+  { id: "copper", name: "Copper", hex: "#B87333" },
+  { id: "terra-cotta", name: "Terra Cotta", hex: "#E2725B" },
+  { id: "chocolate", name: "Chocolate", hex: "#7B3F00" },
+  { id: "cinnamon", name: "Cinnamon", hex: "#D2691E" },
+  { id: "almond", name: "Almond", hex: "#EFDECD" },
+
+  // Third row
+  { id: "red", name: "Red", hex: "#FF0000" },
+  { id: "burgundy", name: "Burgundy", hex: "#800020" },
+  { id: "raspberry", name: "Raspberry", hex: "#E30B5D" },
+  { id: "magenta", name: "Magenta", hex: "#FF00FF" },
+  { id: "bubblegum", name: "Bubblegum", hex: "#FFC1CC" },
+  { id: "shrimp", name: "Shrimp", hex: "#E29D9D" },
+  { id: "dusty-rose", name: "Dusty Rose", hex: "#DCAE96" },
+
+  // Fourth row
+  { id: "canary", name: "Canary", hex: "#FFFF99" },
+  { id: "gold", name: "Gold", hex: "#FFD700" },
+  { id: "orange", name: "Orange", hex: "#FFA500" },
+  { id: "pumpkin", name: "Pumpkin", hex: "#FF7518" },
+  { id: "coral", name: "Coral", hex: "#FF7F50" },
+  { id: "peach", name: "Peach", hex: "#FFE5B4" },
+  { id: "pink", name: "Pink", hex: "#FFC0CB" },
+
+  // Fifth row
+  { id: "buttercup", name: "Buttercup", hex: "#F3E5AB" },
+  { id: "mint", name: "Mint", hex: "#3EB489" },
+  { id: "lime", name: "Lime", hex: "#00FF00" },
+  { id: "celadon", name: "Celadon", hex: "#ACE1AF" },
+  { id: "olive", name: "Olive", hex: "#808000" },
+  { id: "kelly-green", name: "Kelly Green", hex: "#4CBB17" },
+  { id: "grass-green", name: "Grass Green", hex: "#7CFC00" },
+
+  // Sixth row
+  { id: "slate", name: "Slate", hex: "#708090" },
+  { id: "cornflower", name: "Cornflower", hex: "#6495ED" },
+  { id: "sea-mist", name: "Sea Mist", hex: "#B3C7D6" },
+  { id: "turquoise", name: "Turquoise", hex: "#40E0D0" },
+  { id: "regal-teal", name: "Regal Teal", hex: "#008080" },
+  { id: "teal", name: "Teal", hex: "#008080" },
+  { id: "hunter-green", name: "Hunter Green", hex: "#355E3B" },
+
+  // Seventh row
+  { id: "electric-blue", name: "Electric Blue", hex: "#7DF9FF" },
+  { id: "royal-blue", name: "Royal Blue", hex: "#4169E1" },
+  { id: "navy", name: "Navy", hex: "#000080" },
+  { id: "regal-purple", name: "Regal Purple", hex: "#6C3082" },
+  { id: "plum", name: "Plum", hex: "#8E4585" },
+  { id: "amethyst", name: "Amethyst", hex: "#9966CC" },
+  { id: "lilac", name: "Lilac", hex: "#C8A2C8" }
 ];
-
 const AddProduct = () => {
   const { theme } = useContext(ThemeContext);
   const { addProduct } = useOwner();
