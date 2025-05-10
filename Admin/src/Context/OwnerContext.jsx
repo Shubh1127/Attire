@@ -22,6 +22,10 @@ export const OwnerProvider = ({ children }) => {
     const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
     return now - parseInt(tokenTimestamp, 10) > sevenDaysInMs;
   };
+  if (isTokenExpired()) {
+  console.error('Token has expired. Redirecting to login...');
+  navigate('/signin'); // Redirect to login page
+}
 
   // Check for an authenticated owner on component mount
   useEffect(() => {
