@@ -213,7 +213,7 @@ const initiateRazorpayPayment = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;
-    const ownerId = req.params.ownerId; // Assuming ownerId is passed as a route parameter
+    const ownerId = req.user._id; // Assuming ownerId is passed as a route parameter
 
     // First, find all product IDs that belong to this owner
     const ownerProducts = await Product.find({ OwnerId: ownerId }, '_id');
