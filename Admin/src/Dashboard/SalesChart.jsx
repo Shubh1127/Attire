@@ -47,7 +47,6 @@ const SalesChart = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      // Only fetch if we don't have data for this timeFrame
       if (!dataFrames[timeFrame]) {
         try {
           setLoading(true);
@@ -65,7 +64,6 @@ const SalesChart = () => {
           setLoading(false);
         }
       } else {
-        // Use cached data if available
         setSalesData(dataFrames[timeFrame]);
       }
     };
@@ -73,7 +71,6 @@ const SalesChart = () => {
     loadData();
   }, [timeFrame, fetchSalesAnalytics, dataFrames]);
 
-  // Clear cached data when component unmounts to prevent memory leaks
   useEffect(() => {
     return () => {
       setDataFrames({
@@ -93,6 +90,18 @@ const SalesChart = () => {
   const barHover = themeColor('bg-gray-800', 'bg-gray-400', theme);
   const positiveBadgeBg = themeColor('bg-green-100', 'bg-green-900', theme);
   const positiveBadgeText = themeColor('text-green-800', 'text-green-200', theme);
+
+  const maxSales = salesData.length > 0 
+    ? Math.max(...salesData.map(item => item.totalSales)) 
+    : 0;
+
+  const totalSales = salesData.reduce((sum, item) => sum + item.totalSales, 0);
+  const averageSales = salesData.length > 0 
+    ? totalSales / salesData.length 
+    : 0;
+
+  // Responsive adjustments
+  const isMobile = window.innerWidth < 640; // Tailwind's sm breakpoint
 
   if (loading) {
     return (
@@ -124,24 +133,16 @@ const SalesChart = () => {
     );
   }
 
-  const maxSales = salesData.length > 0 
-    ? Math.max(...salesData.map(item => item.totalSales)) 
-    : 0;
-
-  const totalSales = salesData.reduce((sum, item) => sum + item.totalSales, 0);
-  const averageSales = salesData.length > 0 
-    ? totalSales / salesData.length 
-    : 0;
-
   return (
     <Card className={`h-full ${cardBg} ${cardBorder}`}>
-      <CardHeader className="flex justify-between items-center">
+      <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <CardTitle className={textPrimary}>Sales Overview</CardTitle>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
           <Button 
             variant={timeFrame === 'week' ? 'primary' : 'outline'} 
             size="sm"
             onClick={() => setTimeFrame('week')}
+            className="whitespace-nowrap"
           >
             Weekly
           </Button>
@@ -149,6 +150,7 @@ const SalesChart = () => {
             variant={timeFrame === 'month' ? 'primary' : 'outline'} 
             size="sm"
             onClick={() => setTimeFrame('month')}
+            className="whitespace-nowrap"
           >
             Monthly
           </Button>
@@ -156,6 +158,7 @@ const SalesChart = () => {
             variant={timeFrame === 'year' ? 'primary' : 'outline'} 
             size="sm"
             onClick={() => setTimeFrame('year')}
+            className="whitespace-nowrap"
           >
             Yearly
           </Button>
@@ -163,26 +166,19 @@ const SalesChart = () => {
       </CardHeader>
       <CardContent>
         <div className="h-64">
-          {loading ? (
-            <div className="h-full flex items-center justify-center">
-              <p className={textSecondary}>Loading...</p>
-            </div>
-          ) : error ? (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-red-500">Error: {error}</p>
-            </div>
-          ) : salesData.length > 0 ? (
-            <div className="flex h-full items-end space-x-2">
+          {salesData.length > 0 ? (
+            <div className="flex h-full items-end space-x-1 sm:space-x-2 overflow-x-auto pb-2">
               {salesData.map((item, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center">
+                <div key={index} className="flex flex-col items-center" style={{ minWidth: isMobile ? '2rem' : 'auto' }}>
                   <div 
-                    className={`w-full ${barBg} hover:${barHover} transition-all rounded-t-sm`} 
+                    className={`${barBg} hover:${barHover} transition-all rounded-t-sm`}
                     style={{ 
+                      width: isMobile ? '1.5rem' : '100%',
                       height: maxSales > 0 ? `${(item.totalSales / maxSales) * 100}%` : '0%',
                       minHeight: '4px'
                     }}
                   ></div>
-                  <div className={`text-xs mt-2 ${textSecondary}`}>
+                  <div className={`text-xs mt-2 ${textSecondary} text-center`}>
                     {item.formattedDate || item._id.date}
                   </div>
                 </div>
@@ -194,20 +190,20 @@ const SalesChart = () => {
             </div>
           )}
         </div>
-        <div className="mt-6 flex items-center justify-between">
-          <div>
+        <div className="mt-6 grid grid-cols-2 sm:flex sm:items-center sm:justify-between gap-4 sm:gap-0">
+          <div className="sm:text-left">
             <p className={`text-sm ${textSecondary}`}>Total Sales</p>
-            <p className={`text-2xl font-semibold ${textPrimary}`}>
+            <p className={`text-xl sm:text-2xl font-semibold ${textPrimary}`}>
               ₹{totalSales.toFixed(2)}
             </p>
           </div>
-          <div>
+          <div className="sm:text-left">
             <p className={`text-sm ${textSecondary}`}>Average</p>
-            <p className={`text-2xl font-semibold ${textPrimary}`}>
+            <p className={`text-xl sm:text-2xl font-semibold ${textPrimary}`}>
               ₹{averageSales.toFixed(2)}
             </p>
           </div>
-          <div>
+          <div className="col-span-2 sm:col-auto flex flex-col items-center sm:items-end">
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${positiveBadgeBg} ${positiveBadgeText}`}>
               +0.0%
             </span>
