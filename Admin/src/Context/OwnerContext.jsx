@@ -24,7 +24,7 @@ export const OwnerProvider = ({ children }) => {
   };
   if (isTokenExpired()) {
   console.error('Token has expired. Redirecting to login...');
-  navigate('/signin'); // Redirect to login page
+  navigate('/auth'); // Redirect to login page
 }
 
   // Check for an authenticated owner on component mount
@@ -289,6 +289,18 @@ export const OwnerProvider = ({ children }) => {
     }
   };
 
+  const fetchSalesAnalytics = async (period = "month") => {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/order/analytics/sales`, {
+      withCredentials: true,
+      params: { period },
+    });
+    return response.data.salesData;
+  } catch (error) {
+    console.error("Error fetching sales analytics:", error.response?.data?.message || error.message);
+    throw error;
+  }
+};
   return (
     <OwnerContext.Provider
       value={{
@@ -297,6 +309,7 @@ export const OwnerProvider = ({ children }) => {
         fetchOrders,
         fetchBuyerDetails,
         registerWithEmail,
+        fetchSalesAnalytics,
         registerWithGoogle,
         loginWithEmail,
         fetchProducts,

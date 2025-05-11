@@ -68,8 +68,6 @@ const SalesOverview = () => {
     getOrders();
   }, []);
 
-    
-  
     useEffect(() => {
       const getBuyers = async () => {
         try {
@@ -94,8 +92,6 @@ const SalesOverview = () => {
     
         getProducts();
       }, []);
-  
-
   // Theme-aware icon background generator
   const getIconBg = (baseColor) => 
     themeColor(`bg-${baseColor}-50`, `bg-${baseColor}-900`, theme);
