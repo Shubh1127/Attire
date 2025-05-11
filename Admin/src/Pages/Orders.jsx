@@ -9,12 +9,30 @@ const Orders = () => {
   const { theme } = useContext(ThemeContext);
   const { fetchOrders } = useOwner();
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalAmount: 0,
     pendingOrders: 0,
     completedOrders: 0
   });
+
+  const refreshOrders = async () => {
+    try {
+      setLoading(true);
+      const { orders } = await fetchOrders("", 1, 10); // Adjust parameters as needed
+      setOrders(orders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    refreshOrders();
+  }, []);
 
   useEffect(() => {
     const getOrders = async () => {
@@ -159,7 +177,7 @@ const Orders = () => {
         })}
       </div>
       
-      <OrderTable orders={orders} />
+      <OrderTable orders={orders} refreshOrders={refreshOrders} />
     </div>
   );
 };

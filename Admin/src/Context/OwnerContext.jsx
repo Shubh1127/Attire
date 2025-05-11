@@ -301,6 +301,30 @@ export const OwnerProvider = ({ children }) => {
     throw error;
   }
 };
+
+const updateOrderStatus = async (orderId, updateData) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/order/status/${orderId}`,
+        updateData,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data.success) {
+        return response.data.order;
+      } else {
+        throw new Error(response.data.message || 'Failed to update order status');
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      throw error;
+    }
+  };
   return (
     <OwnerContext.Provider
       value={{
@@ -308,6 +332,7 @@ export const OwnerProvider = ({ children }) => {
         loading,
         fetchOrders,
         fetchBuyerDetails,
+        updateOrderStatus,
         registerWithEmail,
         fetchSalesAnalytics,
         registerWithGoogle,
