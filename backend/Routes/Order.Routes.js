@@ -9,8 +9,8 @@ router.get('/buyers-with-orders', authMiddleware, orderController.fetchAllBuyers
 router.post('/payment/create-order', authMiddleware, orderController.initiateRazorpayPayment);
 router.post('/pay/verify', authMiddleware, orderController.processPaymentSuccess);
 router.get('/analytics/sales', authMiddleware, orderController.getSalesAnalytics);
-router.get('/buyer/:buyer_id', authMiddleware, orderController.getBuyerOrders);
 router.post('/placeorder', authMiddleware, orderController.createOrder);
+router.get('/buyer/:buyer_id', authMiddleware, orderController.getBuyerOrders);
 router.put('/status/:orderId', authMiddleware, orderController.updateOrderStatus);
 router.put('/cancel/:orderId', authMiddleware, orderController.cancelOrder);
 

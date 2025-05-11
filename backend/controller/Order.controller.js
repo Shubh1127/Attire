@@ -50,6 +50,10 @@ const createOrder = async (req, res) => {
       const product = products.find((p) => p._id.equals(item.product_id));
       if (!product) throw new Error(`Product ${item.product_id} not found`);
 
+      if (product.quantity < item.quantity) {
+        throw new Error(`Insufficient stock for product: ${product.name}`);
+      }
+
       const itemTotal = item.quantity * product.price;
       subtotal += itemTotal;
 
@@ -118,11 +122,12 @@ const createOrder = async (req, res) => {
       // Update product stock
       await Promise.all(
         items.map(async (item) => {
-          await Product.updateOne(
-            { _id: item.product_id },
-            { $inc: { stock: -item.quantity } },
-            { session }
-          );
+          const product = await Product.findById(item.product_id);
+          if (product.quantity < item.quantity) {
+            throw new Error(`Insufficient stock for product: ${product.name}`);
+          }
+          product.quantity -= item.quantity; // Decrement stock
+          await product.save({ session });
         })
       );
 
@@ -269,7 +274,6 @@ const getBuyerOrders = async (req, res) => {
     });
   }
 };
-
 // Get single order details
 const getOrderDetails = async (req, res) => {
   try {
@@ -298,7 +302,6 @@ const getOrderDetails = async (req, res) => {
     });
   }
 };
-
 // Update order status (admin)
 const updateOrderStatus = async (req, res) => {
   try {
@@ -358,7 +361,6 @@ const updateOrderStatus = async (req, res) => {
     });
   }
 };
-
 // Cancel order (buyer)
 const cancelOrder = async (req, res) => {
   try {
@@ -412,7 +414,6 @@ const cancelOrder = async (req, res) => {
     });
   }
 };
-
 // Process Razorpay payment success
 const processPaymentSuccess = async (req, res) => {
   try {
@@ -460,7 +461,6 @@ const processPaymentSuccess = async (req, res) => {
     });
   }
 };
-
 // Get sales analytics (admin)
 const getSalesAnalytics = async (req, res) => {
   try {
@@ -515,8 +515,6 @@ const getSalesAnalytics = async (req, res) => {
     });
   }
 };
-
-
 const fetchAllBuyersWithOrders = async (req, res) => {
   try {
     const buyersWithOrders = await Order.aggregate([
@@ -573,7 +571,6 @@ const fetchAllBuyersWithOrders = async (req, res) => {
     });
   }
 };
-
 module.exports.deleteExpiredOrders = async () => {
   try {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
