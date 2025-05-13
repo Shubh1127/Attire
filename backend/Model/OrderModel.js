@@ -111,6 +111,15 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  trackingNumber:String,
+  expectedDeliveryDate: {
+    type: Date,
+    default: () => {
+      const date = new Date();
+      date.setDate(date.getDate() + 7); // Default to 7 days from now
+      return date;
+    }
+  },
   updatedAt: {
     type: Date,
     default: Date.now

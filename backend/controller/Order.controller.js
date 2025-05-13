@@ -253,24 +253,55 @@ const getAllOrders = async (req, res) => {
   }
 };
 // Get orders for a specific buyer
+
 const getBuyerOrders = async (req, res) => {
   try {
-    const { buyer_id } = req.params;
-    const { status } = req.query;
-    const query = { buyer_id };
-    if (status) query.status = status;
+    const { buyer_id  } = req.params;
 
-    const orders = await Order.find(query).sort({ createdAt: -1 });
+
+    // Convert string to ObjectId if it's a valid format
+    let buyerObjectId;
+    try {
+      buyerObjectId = new mongoose.Types.ObjectId(buyer_id );
+    } catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid buyer ID format",
+        details: `The provided ID '${buyerId}' is not a valid MongoDB ObjectId`
+      });
+    }
+
+    // Find all orders for this buyer
+    const orders = await Order.find({ buyer_id: buyerObjectId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'items.product_id',
+        select: 'name photos',
+      })
+      .populate('buyer_id', 'name email phone'); // Also populate buyer info
+
+    if (!orders || orders.length === 0) {
+      return res.status(200).json({  // 200 instead of 404 since it's a valid empty result
+        success: true,
+        count: 0,
+        message: "No orders found for this buyer",
+        orders: []
+      });
+    }
 
     res.status(200).json({
       success: true,
+      count: orders.length,
       orders,
     });
+
   } catch (error) {
+    console.error('Error in getBuyerOrders:', error);
     res.status(500).json({
       success: false,
       message: "Error fetching buyer orders",
       error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
