@@ -18,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import SearchPage from './pages/SearchPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import SignIn from './Auth/SignIn';
+import OrdersPage from './pages/OrdersPage';
 
 // Route Guard for Protected Routes
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -117,6 +118,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <OrderConfirmationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrdersPage />
               </ProtectedRoute>
             }
           />

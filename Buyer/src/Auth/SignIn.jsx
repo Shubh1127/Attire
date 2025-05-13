@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../Auth/SupabaseClient";
 import {
@@ -15,6 +15,7 @@ import { useBuyerContext } from "../Context/BuyerContext";
 import { FcGoogle } from "react-icons/fc";
 import { ShoppingBag, Eye, EyeOff } from "lucide-react";
 import { useTheme } from "../Context/ThemeContext";
+import { getCookie } from "../utils/cookies"; // Import getCookie function
 
 export default function AuthTabs() {
   const {
@@ -35,7 +36,7 @@ export default function AuthTabs() {
   // Check if the user is already logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("token");
+      const token = getCookie("token"); // Get token from cookies instead of localStorage
       const { data: session } = await supabase.auth.getSession();
       const supabaseUser = session?.session?.user;
 
@@ -48,7 +49,7 @@ export default function AuthTabs() {
     };
 
     checkAuth();
-  }, []);
+  }, [navigate]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -70,7 +71,6 @@ export default function AuthTabs() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      
       const resp = await loginWithEmail(email, password);
       if (resp) {
         navigate("/");

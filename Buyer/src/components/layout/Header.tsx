@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, ShoppingBag, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { Search, ShoppingBag, User, Menu, X, Sun, Moon, Package } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useCartStore } from '../../store/cartStore';
 import { useTheme } from '../../Context/ThemeContext';
@@ -16,28 +16,25 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const totalItems = useCartStore((state) => state.totalItems());
   const location = useLocation();
-  // Check authentication using Supabase and localStorage
- useEffect(() => {
-     const checkAuth = async () => {
-       try {
-         // Check both cookie token and Supabase session
-         const token = getCookie('token');
-         const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
-         
-         if (supabaseError) throw supabaseError;
-         
-         // Authenticated if either exists
-         setIsAuthenticated(!!(token || session?.user));
-       } catch (error) {
-         console.error('Auth check error:', error);
-         setIsAuthenticated(false);
-       }
-     };
- 
-     checkAuth();
-   }, []);
 
-  // Check if scrolled for changing header style
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = getCookie('token');
+        const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
+        
+        if (supabaseError) throw supabaseError;
+        
+        setIsAuthenticated(!!(token || session?.user));
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -47,12 +44,10 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  // Navigation items
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Men', path: '/category/men' },
@@ -109,6 +104,15 @@ const Header = () => {
             >
               <Search className="h-5 w-5" />
             </Link>
+
+            {isAuthenticated && (
+              <Link
+                to="/orders"
+                className="text-gray-700 dark:text-gray-100 hover:text-navy-800 dark:hover:text-amber-400 relative"
+              >
+                <Package className="h-5 w-5" />
+              </Link>
+            )}
 
             <Link
               to="/cart"
