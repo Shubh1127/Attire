@@ -49,7 +49,7 @@ export default function AuthTabs() {
     };
 
     checkAuth();
-  }, [navigate]);
+  }, []);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
