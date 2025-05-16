@@ -5,7 +5,7 @@ import { useTheme } from '../Context/ThemeContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useNavigate } from 'react-router-dom';
-import { getCookie } from '../utils/cookies';
+import { getCookie,deleteCookie } from '../utils/cookies';
 
 const ProfilePage: React.FC = () => {
   const {
@@ -83,24 +83,45 @@ const ProfilePage: React.FC = () => {
 
 
  useEffect(() => {
-     const checkAuth = async () => {
-       try {
-         // Check both cookie token and Supabase session
-         const token = getCookie('token');
-         const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
-         
-         if (supabaseError) throw supabaseError;
-         
-         // Authenticated if either exists
-         setIsAuthenticated(!!(token || session?.user));
-       } catch (error) {
-         console.error('Auth check error:', error);
-         setIsAuthenticated(false);
-       }
-     };
- 
-     checkAuth();
-   }, []);
+  const checkAuth = async () => {
+    try {
+      // Check Supabase session first
+      const { data: { session }, error: supabaseError } = await supabase.auth.getSession();
+      
+      // Check cookie token
+      const token = getCookie('token');
+      const tokenTimestamp = getCookie('tokenTimestamp');
+      
+      // Validate token timestamp if exists
+      if (tokenTimestamp) {
+        const tokenAge = Date.now() - parseInt(tokenTimestamp);
+        const isTokenExpired = tokenAge > 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+        
+        if (isTokenExpired) {
+          // Clear expired tokens
+          deleteCookie('token');
+          deleteCookie('tokenTimestamp');
+          setIsAuthenticated(false);
+          return;
+        }
+      }
+      
+      // Authenticated if either exists
+      setIsAuthenticated(!!(token || session?.user));
+      
+      // If not authenticated, redirect to login
+      if (!token && !session?.user) {
+        navigate('/signup');
+      }
+    } catch (error) {
+      console.error('Auth check error:', error);
+      setIsAuthenticated(false);
+      navigate('/signup');
+    }
+  };
+
+  checkAuth();
+}, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

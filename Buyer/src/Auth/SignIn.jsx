@@ -37,10 +37,8 @@ export default function AuthTabs() {
   useEffect(() => {
     const checkAuth = async () => {
       const token = getCookie("token"); // Get token from cookies instead of localStorage
-      const { data: session } = await supabase.auth.getSession();
-      const supabaseUser = session?.session?.user;
-
-      if (token || supabaseUser) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (token || session?.user) {
         setIsAuthenticated(true);
         navigate("/"); // Redirect to home if logged in
       } else {

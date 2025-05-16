@@ -181,24 +181,40 @@ export const BuyerProvider = ({ children }) => {
 
   // Logout buyer
   const logoutBuyer = async () => {
+  try {
+    // Clear Supabase session
+    await supabase.auth.signOut();
+    
+    // Clear local storage
+    localStorage.removeItem("buyer");
+    
+    // Clear cookies more aggressively
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "tokenTimestamp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    
+    // Make API call to backend logout
     try {
-      navigate("/"); // Redirect to home page after logout
-      await supabase.auth.signOut();
-      deleteCookie("token");
-      deleteCookie("tokenTimestamp");
-      localStorage.removeItem("buyer");
-      try {
-        await axios.get(`${API_URL}/buyer/logout`, {
-          withCredentials: true
-        });
-      } catch (err) {
-        console.log(err.message);
-      }
-      setBuyer(null);
-    } catch (error) {
-      console.error("Error signing out:", error.message);
+      await axios.get(`${API_URL}/buyer/logout`, {
+        withCredentials: true,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+    } catch (err) {
+      console.log("Backend logout error:", err.message);
     }
-  };
+    
+    // Clear state and redirect
+    setBuyer(null);
+    navigate("/", { replace: true });
+    
+    // Force reload to ensure clean state
+    window.location.reload();
+  } catch (error) {
+    console.error("Error signing out:", error.message);
+  }
+};
 
   // Fetch buyer profile
   const getProfile = async () => {
