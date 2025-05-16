@@ -79,7 +79,7 @@ module.exports.login = async (req, res) => {
   }
 };
 
-router.get('/logout', (req, res) => {
+module.exports.logout=async (req, res) => {
   // Clear cookies
   res.clearCookie('token');
   res.clearCookie('tokenTimestamp');
@@ -90,7 +90,7 @@ router.get('/logout', (req, res) => {
   
   // Send response
   res.status(200).json({ message: 'Logged out successfully' });
-});
+};
 
 module.exports.getProfile = async (req, res) => {
   try {
