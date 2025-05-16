@@ -79,10 +79,18 @@ module.exports.login = async (req, res) => {
   }
 };
 
-module.exports.logout = (req, res) => {
+router.get('/logout', (req, res) => {
+  // Clear cookies
   res.clearCookie('token');
-  return res.status(200).json({ message: 'Logged out successfully' });
-};
+  res.clearCookie('tokenTimestamp');
+  
+  // Set cache headers
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  
+  // Send response
+  res.status(200).json({ message: 'Logged out successfully' });
+});
 
 module.exports.getProfile = async (req, res) => {
   try {
