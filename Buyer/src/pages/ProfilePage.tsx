@@ -128,13 +128,7 @@ const ProfilePage: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value, type, checked } = e.target;
-  //   setAddressForm(prev => ({
-  //     ...prev,
-  //     [name]: type === 'checkbox' ? checked : value
-  //   }));
-  // };
+ 
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
