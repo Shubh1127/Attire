@@ -167,7 +167,7 @@ const CheckoutPage: React.FC = () => {
               orderId: order._id
             },
             {
-              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+             withCredentials:true,
             }
           )
           .then(() => {

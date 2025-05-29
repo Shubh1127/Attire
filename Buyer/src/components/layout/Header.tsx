@@ -72,8 +72,7 @@ const Header = () => {
           <Link
             to="/"
             className="text-2xl font-bold text-navy-800 dark:text-white"
-          >
-            DS kadianBoutique
+          > Attire
           </Link>
 
           {/* Desktop Navigation */}

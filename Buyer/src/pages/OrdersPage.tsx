@@ -121,12 +121,13 @@ const OrdersPage: React.FC = () => {
                     <div className="flex items-center space-x-2">
                         <Package className="h-6 w-6 text-amber-500" />
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                           
                             {orders.length} {orders.length === 1 ? 'order' : 'orders'}
                         </span>
                     </div>
                 </div>
 
-                {orders.length === 0 ? (
+                {orders.length === 0  ? (
                     <div className="text-center py-12">
                         <Package className="mx-auto h-12 w-12 text-gray-400" />
                         <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">No orders yet</h3>
